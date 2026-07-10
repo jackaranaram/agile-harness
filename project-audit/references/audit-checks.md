@@ -40,7 +40,7 @@ Complete list of all checks with detection commands, priority, and fixability.
 |---|---|---|---|
 | EDITORCONFIG | .editorconfig exists | `Test-Path ".editorconfig"` | Always |
 | LICENSE | LICENSE file exists | `Test-Path "LICENSE" -or Test-Path "LICENSE.md" -or Test-Path "LICENSE.txt"` | Public repo |
-| CONVENTIONAL-COMMITS | Recent commits follow CC | `git log --oneline -5 --skip=1 | Select-String "^(feat|fix|docs|chore|refactor|test|ci)(\(.*?\))?: "` | Always |
+| CONVENTIONAL-COMMITS | Recent commits follow CC | `git log --format="%s" -5 --skip=1 | Select-String "^(feat|fix|docs|chore|refactor|test|ci)(\(.*?\))?: "` | Always |
 | PR-TEMPLATE | PR template exists | `Test-Path ".github/PULL_REQUEST_TEMPLATE" -or Test-Path ".github/PULL_REQUEST_TEMPLATE.md"` | >1 contributor |
 | ISSUE-TEMPLATE | Issue template exists | `Test-Path ".github/ISSUE_TEMPLATE"` | Public project |
 | SECURITY | Security policy | `Test-Path "SECURITY.md"` | Public project |
