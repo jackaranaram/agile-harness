@@ -1,6 +1,20 @@
 ---
 name: technical-writer
-description: Orchestrates the creation and maintenance of a complete project context suite for AI agents and human developers. Analyzes the project stack, structure, and dependencies to generate up to 9 context files: docs/ARCHITECTURE.md, docs/CONTRACTS.md, docs/DATABASE.md, docs/MODEL.md, docs/ROADMAP.md, docs/SCOPE.md (technical docs for humans), AGENTS.md (AI behavior rules at project root), README.md (professional project readme at root), and DESIGN.md (visual tokens at root, for frontend projects). Use this skill whenever the user asks to generate or update documentation, initialize a project for AI agents, set up project context, create or update README.md, or create AGENTS.md, ARCHITECTURE.md, DESIGN.md, or any of the 6 doc files. Also triggers when the user mentions "context", "documentation suite", "project setup for AI", "readme generator", or "update docs". Handles both init (from scratch) and update (detects existing files, regenerates them, commits changes).
+description: >-
+  Orchestrates the creation and maintenance of a complete project context suite
+  for AI agents and human developers. Analyzes the project stack, structure, and
+  dependencies to generate up to 9 context files: docs/ARCHITECTURE.md,
+  docs/CONTRACTS.md, docs/DATABASE.md, docs/MODEL.md, docs/ROADMAP.md,
+  docs/SCOPE.md (technical docs for humans), AGENTS.md (AI behavior rules at
+  project root), README.md (professional project readme at root), and DESIGN.md
+  (visual tokens at root, for frontend projects). Use this skill whenever the
+  user asks to generate or update documentation, initialize a project for AI
+  agents, set up project context, create or update README.md, or create
+  AGENTS.md, ARCHITECTURE.md, DESIGN.md, or any of the 6 doc files. Also
+  triggers when the user mentions "context", "documentation suite", "project
+  setup for AI", "readme generator", or "update docs". Handles both init (from
+  scratch) and update (detects existing files, regenerates them, commits
+  changes).
 ---
 
 # technical-writer
