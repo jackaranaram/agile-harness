@@ -1,0 +1,27 @@
+{
+  "skill_name": "project-audit",
+  "description": "Professional project audit and fix skill",
+  "evals": [
+    {
+      "id": 1,
+      "name": "audit-full-stack",
+      "prompt": "audita este proyecto, es un proyecto Next.js con TypeScript en GitHub, dime todo lo que falta",
+      "expected_output": "Audit report with scored checklist (critical/high/medium/low), total score, and recommendations",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "fix-branch-protection",
+      "prompt": "del reporte de auditoría, haz fix de branch-protection y editorconfig",
+      "expected_output": "Branch protection configured via gh api, .editorconfig created, summary of changes",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "audit-python-project",
+      "prompt": "revisa los estándares profesionales de este proyecto Python, necesito saber si está listo para producción",
+      "expected_output": "Audit report with Python-specific checks (ruff, pytest, pre-commit), production readiness assessment",
+      "files": []
+    }
+  ]
+}
