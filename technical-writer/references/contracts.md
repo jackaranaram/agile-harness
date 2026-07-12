@@ -4,7 +4,7 @@ Usa esta plantilla cuando el usuario solicite crear o actualizar `CONTRACTS.md` 
 
 ## Estructura
 
-```markdown
+````markdown
 # 🤝 Contratos de Interfaz
 
 ## Autenticación
@@ -23,13 +23,16 @@ Describe el mecanismo de autenticación: JWT, API Keys, OAuth, Session, etc.
 | Authorization | Bearer {token} | Sí |
 
 **Request Body:**
+
 ```json
 {
   "campo": "tipo | descripción"
 }
 ```
+````
 
 **Response `{status_code}`:**
+
 ```json
 {
   "campo": "tipo | descripción"
@@ -55,6 +58,7 @@ Describe reglas de acceso, RLS (Row Level Security), middleware, rate limiting, 
 - [🧠 Lógica Core e Inferencia](MODEL.md)
 - [🗺️ Roadmap de Producto](ROADMAP.md)
 - [🎯 Alcance MVP](SCOPE.md)
+
 ```
 
 ## Reglas
@@ -63,3 +67,4 @@ Describe reglas de acceso, RLS (Row Level Security), middleware, rate limiting, 
 - Clasifica endpoints como **MVP** o **Alcance Futuro / Post-MVP**.
 - No uses la palabra "Beta".
 - Las referencias al final usan rutas relativas.
+```

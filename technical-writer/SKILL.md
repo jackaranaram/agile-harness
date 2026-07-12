@@ -66,6 +66,7 @@ Check which of these files already exist:
 - `DESIGN.md` (root)
 
 Classify the state:
+
 - **init**: none or few files exist
 - **update**: most or all files exist (regenerate)
 
@@ -98,9 +99,9 @@ For each selected output:
    - `model.md` → `docs/MODEL.md`
    - `roadmap.md` → `docs/ROADMAP.md`
    - `scope.md` → `docs/SCOPE.md`
-    - `agents.md` → `AGENTS.md`
-    - `readme.md` → `README.md`
-    - `design.md` → `DESIGN.md`
+   - `agents.md` → `AGENTS.md`
+   - `readme.md` → `README.md`
+   - `design.md` → `DESIGN.md`
 
 2. Fill template placeholders with real data from the analysis:
    - Framework names and versions
@@ -163,16 +164,16 @@ This creates a loop: the AI reads AGENTS.md → detects drift → notifies user 
 
 This skill loads templates from `references/` as needed. Each template is self-contained:
 
-| File | Load When |
-|---|---|
-| `references/architecture.md` | User wants ARCHITECTURE.md |
-| `references/contracts.md` | User wants CONTRACTS.md |
-| `references/database.md` | User wants DATABASE.md |
-| `references/model.md` | User wants MODEL.md |
-| `references/roadmap.md` | User wants ROADMAP.md |
-| `references/scope.md` | User wants SCOPE.md |
-| `references/agents.md` | User wants AGENTS.md |
-| `references/readme.md` | User wants README.md |
-| `references/design.md` | User wants DESIGN.md (frontend only) |
+| File                         | Load When                            |
+| ---------------------------- | ------------------------------------ |
+| `references/architecture.md` | User wants ARCHITECTURE.md           |
+| `references/contracts.md`    | User wants CONTRACTS.md              |
+| `references/database.md`     | User wants DATABASE.md               |
+| `references/model.md`        | User wants MODEL.md                  |
+| `references/roadmap.md`      | User wants ROADMAP.md                |
+| `references/scope.md`        | User wants SCOPE.md                  |
+| `references/agents.md`       | User wants AGENTS.md                 |
+| `references/readme.md`       | User wants README.md                 |
+| `references/design.md`       | User wants DESIGN.md (frontend only) |
 
 Each template contains the full file structure, validation rules, and examples. Load only the ones needed for the current task.

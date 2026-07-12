@@ -28,24 +28,25 @@ Usa esta plantilla cuando el usuario solicite crear o actualizar `README.md` en 
 
 ## 📦 Dependencias
 
-| Dependencia | Versión | Licencia | Propósito |
-|---|---|---|---|
-| {dep1} | {x.y.z} | {MIT} | {propósito} |
-| {dep2} | {x.y.z} | {Apache-2.0} | {propósito} |
+| Dependencia | Versión | Licencia     | Propósito   |
+| ----------- | ------- | ------------ | ----------- |
+| {dep1}      | {x.y.z} | {MIT}        | {propósito} |
+| {dep2}      | {x.y.z} | {Apache-2.0} | {propósito} |
 
-*Tabla limitada a las 15-20 dependencias principales.*
+_Tabla limitada a las 15-20 dependencias principales._
 
 ## 📁 Estructura del Proyecto
-
 ```
+
 {project-name}/
 ├── src/
-│   ├── {subdir}/
-│   │   └── {file}.ts
-│   └── index.ts
+│ ├── {subdir}/
+│ │ └── {file}.ts
+│ └── index.ts
 ├── tests/
 ├── package.json
 └── README.md
+
 ```
 
 ## 📞 Contacto

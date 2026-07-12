@@ -4,7 +4,7 @@ Usa esta plantilla cuando el usuario solicite crear o actualizar `ARCHITECTURE.m
 
 ## Estructura
 
-```markdown
+````markdown
 # 🏗️ Arquitectura Técnica
 
 ## Diagrama de Sistema
@@ -17,6 +17,8 @@ graph TD
     C --> E[(Base de Datos)]
     D --> F[Servicio Externo]
 ```
+````
+
 ```
 
 ## Flujo de Datos

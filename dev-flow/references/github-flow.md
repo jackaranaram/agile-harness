@@ -28,18 +28,23 @@ Feature branches por ticket/historia (días). Todo va a `main` vía PR con code 
 ## Workflow Steps
 
 ### 1. Stash Uncommitted Changes
+
 - `git status -s` para verificar cambios
 - Si hay: `git stash push -u -m "Auto-stashed before GitHub Flow branch"` e informar al usuario
 
 ### 2. Switch to Main and Sync
+
 - `git checkout main`
 - `git pull origin main` (si hay remote)
 
 ### 3. Create Branch
+
 - `git checkout -b {tipo}/{kebab-desc}` o `git checkout -b {issue-num}-{kebab-desc}`
 
 ### 4. Opcional: Issue Template
+
 - Si el usuario lo pide, incluir referencia al issue en el commit inicial o PR body
 
 ### 5. Summary
+
 "Sincronicé main y creé 42-add-jwt-auth. Trabaja en esta rama y haz commit normalmente. Cuando termines, abre un PR a main."

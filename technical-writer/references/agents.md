@@ -35,13 +35,14 @@ Usa esta plantilla cuando el usuario solicite crear o actualizar `AGENTS.md` en 
 - **Merge a**: {main | develop}
 - **Para crear una rama nueva**, ejecuta la skill `dev-flow`
 - **Test Runner**: [Jest, Vitest, pytest]
-- **Commits**: [Conventional Commits]
+- **Commits**: [Conventional Commits]. Los cambios en documentación (en `docs/`, `AGENTS.md`, `DESIGN.md`, `README.md`) siempre deben confirmarse de forma independiente con el tipo `docs` (ej: `docs(scope): mensaje`) y nunca mezclarse con cambios de código en el mismo commit.
 - **CI/CD**: [GitHub Actions, etc.]
 - **Release**: [semantic-release]
 
 ## 5. Documentación Técnica
 
 La documentación del proyecto vive en `docs/`:
+
 - `docs/ARCHITECTURE.md` — Arquitectura técnica
 - `docs/CONTRACTS.md` — Contratos de interfaz
 - `docs/DATABASE.md` — Modelo de base de datos

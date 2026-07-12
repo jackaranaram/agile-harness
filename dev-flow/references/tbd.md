@@ -28,19 +28,24 @@ Feature branches duran horas, no días. Integración continua todo el tiempo. Re
 ## Workflow Steps
 
 ### 1. Stash Uncommitted Changes
+
 - `git status -s` para verificar cambios
 - Si hay: `git stash push -u -m "Auto-stashed before TBD branch"` e informar al usuario
 
 ### 2. Switch to Main and Sync
+
 - `git checkout main`
 - `git pull origin main` (si hay remote)
 
 ### 3. Delete All Other Local Branches
+
 - Estando en `main`, borrar todas las demás ramas locales
 - Mantener solo `main`
 
 ### 4. Create Branch
+
 - `git checkout -b {tipo}/{kebab-desc}`
 
 ### 5. Summary
+
 "Stashed cambios, sincronicé main, eliminé branches locales, y creé feat/login-form."

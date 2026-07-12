@@ -9,23 +9,24 @@ Usa esta plantilla cuando el usuario solicite crear o actualizar `SCOPE.md` en `
 
 ## Matriz de Control de Features
 
-| Feature | ¿MVP? | Fase | Owner | Notas |
-|---|---|---|---|---|
-| Autenticación | Sí | MVP | Backend | JWT-based |
-| Dashboard | Sí | MVP | Frontend | Core metrics |
-| Reportes Avanzados | No | Post-MVP | - | Depende de data pipeline |
+| Feature            | ¿MVP? | Fase     | Owner    | Notas                    |
+| ------------------ | ----- | -------- | -------- | ------------------------ |
+| Autenticación      | Sí    | MVP      | Backend  | JWT-based                |
+| Dashboard          | Sí    | MVP      | Frontend | Core metrics             |
+| Reportes Avanzados | No    | Post-MVP | -        | Depende de data pipeline |
 
 ## Exclusiones Explícitas
 
 Lista exacta de lo que queda fuera del MVP y la justificación técnica.
 
-| Feature Excluida | Justificación |
-|---|---|
-| Feature X | Requiere integración con terceros no disponible |
+| Feature Excluida | Justificación                                   |
+| ---------------- | ----------------------------------------------- |
+| Feature X        | Requiere integración con terceros no disponible |
 
 ## Definition of Done (DoD)
 
 Para dar una feature por completa:
+
 - [ ] Tests unitarios con cobertura > 80%
 - [ ] Linter pasa sin errores
 - [ ] Types checks sin errores

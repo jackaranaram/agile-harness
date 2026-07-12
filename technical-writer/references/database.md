@@ -4,7 +4,7 @@ Usa esta plantilla cuando el usuario solicite crear o actualizar `DATABASE.md` e
 
 ## Estructura
 
-```markdown
+````markdown
 # 🗄️ Modelo de Base de Datos
 
 ## Diagrama ERD
@@ -18,7 +18,9 @@ erDiagram
     }
     ENTIDAD ||--o{ RELACION: "descripcion"
 ```
-```
+````
+
+````
 
 ## Diccionario de Datos
 
@@ -42,7 +44,7 @@ erDiagram
 ```sql
 CREATE POLICY policy_name ON table_name
   USING (user_id = auth.uid());
-```
+````
 
 ## 🔗 Referencias
 
@@ -51,6 +53,7 @@ CREATE POLICY policy_name ON table_name
 - [🧠 Lógica Core e Inferencia](MODEL.md)
 - [🗺️ Roadmap de Producto](ROADMAP.md)
 - [🎯 Alcance MVP](SCOPE.md)
+
 ```
 
 ## Reglas
@@ -59,3 +62,4 @@ CREATE POLICY policy_name ON table_name
 - Separa explícitamente MVP de Alcance Futuro en el diccionario.
 - Incluye constraints (PK, FK, UNIQUE, NOT NULL, DEFAULT).
 - No uses la palabra "Beta".
+```
