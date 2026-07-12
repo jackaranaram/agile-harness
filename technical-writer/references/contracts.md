@@ -18,9 +18,10 @@ Describe el mecanismo de autenticación: JWT, API Keys, OAuth, Session, etc.
 **Descripción:** Breve descripción del endpoint.
 
 **Headers:**
-| Header | Valor | Obligatorio |
-|---|---|---|
-| Authorization | Bearer {token} | Sí |
+
+| Header        | Valor          | Obligatorio |
+| ------------- | -------------- | ----------- |
+| Authorization | Bearer {token} | Sí          |
 
 **Request Body:**
 
@@ -40,12 +41,13 @@ Describe el mecanismo de autenticación: JWT, API Keys, OAuth, Session, etc.
 ```
 
 **Errores:**
-| Código | Significado |
-|---|---|
-| 400 | Bad Request |
-| 401 | Unauthorized |
-| 404 | Not Found |
-| 500 | Internal Server Error |
+
+| Código | Significado           |
+| ------ | --------------------- |
+| 400    | Bad Request           |
+| 401    | Unauthorized          |
+| 404    | Not Found             |
+| 500    | Internal Server Error |
 
 ## Políticas de Seguridad
 

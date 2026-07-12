@@ -64,6 +64,8 @@ Check which of these files already exist:
 - `README.md` (root)
 - `AGENTS.md` (root)
 - `DESIGN.md` (root)
+- `.github/PULL_REQUEST_TEMPLATE.md` (root)
+- `.github/ISSUE_TEMPLATE/*.md` (root)
 
 Classify the state:
 
@@ -84,6 +86,7 @@ What would you like to generate?
 [ ] README.md — README profesional (→ raíz)
 [ ] AGENTS.md — Reglas para asistentes IA (→ raíz)
 [ ] DESIGN.md — Tokens visuales (→ raíz, solo frontend)
+[ ] Plantillas de GitHub — PULL_REQUEST_TEMPLATE y ISSUE_TEMPLATE (→ .github/)
 
 Custom paths? (default: docs/ + root)
 ```
@@ -102,6 +105,9 @@ For each selected output:
    - `agents.md` → `AGENTS.md`
    - `readme.md` → `README.md`
    - `design.md` → `DESIGN.md`
+   - `github-templates/PULL_REQUEST_TEMPLATE.md` → `.github/PULL_REQUEST_TEMPLATE.md`
+   - `github-templates/ISSUE_TEMPLATE/bug_report.md` → `.github/ISSUE_TEMPLATE/bug_report.md`
+   - `github-templates/ISSUE_TEMPLATE/feature_request.md` → `.github/ISSUE_TEMPLATE/feature_request.md`
 
 2. Fill template placeholders with real data from the analysis:
    - Framework names and versions
@@ -175,5 +181,6 @@ This skill loads templates from `references/` as needed. Each template is self-c
 | `references/agents.md`       | User wants AGENTS.md                 |
 | `references/readme.md`       | User wants README.md                 |
 | `references/design.md`       | User wants DESIGN.md (frontend only) |
+| `references/github-templates/` | User wants GitHub PR/Issue Templates |
 
 Each template contains the full file structure, validation rules, and examples. Load only the ones needed for the current task.

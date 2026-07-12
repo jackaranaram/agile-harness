@@ -69,7 +69,7 @@ Lee el `targetBranch` del workflow reference cargado (tbd.md → `main`, github-
 - Si sí:
   - Usar `gh pr create` o la herramienta MCP `create_pull_request`
   - Título: Conventional Commit basado en la rama (ej: `feat: add jwt authentication`)
-  - Cuerpo: incluir resumen de cambios y referencias a issues si se detectaron
+  - Cuerpo: SIEMPRE leer y completar estrictamente la plantilla ubicada en `.github/PULL_REQUEST_TEMPLATE.md` en la raíz del proyecto. Llenar los campos correspondientes a resumen de cambios y referencias a issues si se detectaron.
   - Si GitHub Flow: sugerir reviewers automáticamente si hay CODEOWNERS
 
 ### 6. Post-Push Cleanup
