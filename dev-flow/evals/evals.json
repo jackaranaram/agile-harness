@@ -4,13 +4,13 @@
     {
       "id": 1,
       "prompt": "Necesito implementar login con JWT usando Supabase. Crea una HU y su branch.",
-      "expected_output": "Usar MCP agile-harness para crear HU, extraer ID y título, crear branch tipo '{huId}-{titulo-kebab}' desde master/main. GitHub Flow por defecto.",
+      "expected_output": "Usar MCP agile-mcp-server para crear HU, extraer ID y título, crear branch tipo '{huId}-{titulo-kebab}' desde master/main. GitHub Flow por defecto.",
       "files": []
     },
     {
       "id": 2,
       "prompt": "Crea una rama para la HU-42 del sprint 3.",
-      "expected_output": "Usar MCP agile-harness para fetch HU-42, extraer título y tipo, crear branch tipo '42-{titulo-kebab}' desde master/main.",
+      "expected_output": "Usar MCP agile-mcp-server para fetch HU-42, extraer título y tipo, crear branch tipo '42-{titulo-kebab}' desde master/main.",
       "files": []
     },
     {

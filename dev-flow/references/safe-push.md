@@ -9,11 +9,13 @@ Lee el `targetBranch` del workflow reference cargado (tbd.md → `main`, github-
 ## Workflow Steps
 
 ### 1. Stash Uncommitted Changes
+
 - `git status -s` para verificar cambios
 - Si hay: `git stash push -u -m "Auto-stashed before safe push"` e informar al usuario
 - Recordar que hay stash para preguntar al final si aplicar de vuelta
 
 ### 2. Fetch and Dry-Run Merge (local, sin commitear)
+
 - `git fetch origin {targetBranch}` — trae lo último del remoto
 - Ejecutar merge local para detectar conflictos:
   ```
@@ -35,6 +37,7 @@ Lee el `targetBranch` del workflow reference cargado (tbd.md → `main`, github-
     - Informar al usuario: "Merge abortado. Resuelve los conflictos manualmente y vuelve a ejecutar push seguro."
 
 ### 3. Run Validations
+
 - Detectar toolchain del proyecto automáticamente:
   - **Node.js** (`package.json` existe):
     - Detectar package manager: `pnpm-lock.yaml` → `pnpm`, `yarn.lock` → `yarn`, `package-lock.json` → `npm`
@@ -56,10 +59,12 @@ Lee el `targetBranch` del workflow reference cargado (tbd.md → `main`, github-
 - Repetir hasta que todas las validaciones pasen
 
 ### 4. Push
+
 - `git push origin {currentBranch}`
 - Si push falla (non-fast-forward): preguntar si hacer `git pull --rebase origin {targetBranch}` y reintentar
 
 ### 5. Pull Request (opcional)
+
 - Preguntar: "¿Crear PR?"
 - Si sí:
   - Usar `gh pr create` o la herramienta MCP `create_pull_request`
@@ -68,8 +73,10 @@ Lee el `targetBranch` del workflow reference cargado (tbd.md → `main`, github-
   - Si GitHub Flow: sugerir reviewers automáticamente si hay CODEOWNERS
 
 ### 6. Post-Push Cleanup
+
 - Si se stashearon cambios al inicio: preguntar "¿Aplicar stash de vuelta?" (`git stash pop`)
 - Si TBD: preguntar "¿Eliminar branch local?" (ya está mergeada en main)
 
 ### 7. Summary
+
 "Validaciones OK, merge local contra {target} sin conflictos, pusheé {branch}. PR creado: {url}."

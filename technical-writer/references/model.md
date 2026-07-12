@@ -4,7 +4,7 @@ Usa esta plantilla cuando el usuario solicite crear o actualizar `MODEL.md` en `
 
 ## Estructura
 
-```markdown
+````markdown
 # 🧠 {Lógica Core / Modelo / Inferencia}
 
 ## Algoritmo Principal
@@ -22,7 +22,9 @@ flowchart TD
     C --> E[Output]
     D --> E
 ```
-```
+````
+
+````
 
 ## Inputs / Outputs
 
@@ -31,9 +33,10 @@ flowchart TD
 {
   "campo": "tipo | descripción"
 }
-```
+````
 
 **Output:**
+
 ```json
 {
   "campo": "tipo | descripción"
@@ -42,9 +45,9 @@ flowchart TD
 
 ## Parámetros y Configuración
 
-| Parámetro | Valor por Defecto | Descripción |
-|---|---|---|
-| threshold | 0.8 | Umbral de decisión |
+| Parámetro | Valor por Defecto | Descripción        |
+| --------- | ----------------- | ------------------ |
+| threshold | 0.8               | Umbral de decisión |
 
 ## 🔗 Referencias
 
@@ -53,6 +56,7 @@ flowchart TD
 - [🗄️ Modelo de Base de Datos](DATABASE.md)
 - [🗺️ Roadmap de Producto](ROADMAP.md)
 - [🎯 Alcance MVP](SCOPE.md)
+
 ```
 
 ## Reglas
@@ -61,3 +65,4 @@ flowchart TD
 - Usa Mermaid `flowchart` para el flujo de ejecución.
 - Clasifica como **MVP** o **Alcance Futuro / Post-MVP**.
 - No uses la palabra "Beta".
+```

@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "Buenos días!",
-      "expected_output": "Health check de git, MCP agile-harness, npx skills. Session recap con branch actual, HU detectada, último commit. Pending items vía MCP. Breaches (tests, stale branches, cambios sin commit, .env drift, docs). Menú de acción.",
+      "expected_output": "Health check de git, MCP agile-mcp-server, npx skills. Session recap con branch actual, HU detectada, último commit. Pending items vía MCP. Breaches (tests, stale branches, cambios sin commit, .env drift, docs). Menú de acción.",
       "files": []
     },
     {

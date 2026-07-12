@@ -4,7 +4,7 @@ Usa esta plantilla cuando el usuario solicite crear o actualizar `ROADMAP.md` en
 
 ## Estructura
 
-```markdown
+````markdown
 # 🗺️ Roadmap de Producto
 
 ## Línea de Tiempo
@@ -24,6 +24,8 @@ gantt
     section Escalado
     Feature 4           :d1, after c1, 45d
 ```
+````
+
 ```
 
 ## Fases

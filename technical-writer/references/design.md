@@ -6,9 +6,9 @@ Usa esta plantilla solo cuando el usuario solicite crear o actualizar `DESIGN.md
 
 ```markdown
 ---
-name: {Project Brand Name}
+name: { Project Brand Name }
 version: 1.0.0
-description: {Short summary of the design aesthetic}
+description: { Short summary of the design aesthetic }
 colors:
   primary: '#hex'
   secondary: '#hex'
@@ -71,10 +71,12 @@ Reglas de sombras y profundidad.
 ## Do's and Don'ts
 
 ### Do:
+
 - {buena práctica 1}
 - {buena práctica 2}
 
 ### Don't:
+
 - {mala práctica 1}
 - {mala práctica 2}
 ```

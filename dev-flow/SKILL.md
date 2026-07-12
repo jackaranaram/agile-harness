@@ -1,6 +1,6 @@
 ---
 name: dev-flow
-description: Handles the full Git lifecycle — creating branches and pushing code safely. Integrates with agile-harness MCP to create Historias de Usuario (HU) and branches in one step. Automates branch creation following GitHub Flow (default), TBD, or Git Flow conventions. Also manages safe push with conflict validation (dry-run merge local), toolchain detection (lint/format/test), and optional PR creation. Use this skill whenever the user asks to "crear HU", "crear branch para HU", "empezar a trabajar en una historia", or wants to push code ("push seguro", "validar antes de push", "crear PR"). When talking about features, bugs, or tasks, prefer using this skill to create HUs first and then branches. Handles GitHub Flow (branches cortas, PR + review — default), TBD (Google/Meta/Netflix), and Git Flow (Linux Kernel/Hashicorp).
+description: Handles the full Git lifecycle — creating branches and pushing code safely. Integrates with agile-mcp-server MCP to create Historias de Usuario (HU) and branches in one step. Automates branch creation following GitHub Flow (default), TBD, or Git Flow conventions. Also manages safe push with conflict validation (dry-run merge local), toolchain detection (lint/format/test), and optional PR creation. Use this skill whenever the user asks to "crear HU", "crear branch para HU", "empezar a trabajar en una historia", or wants to push code ("push seguro", "validar antes de push", "crear PR"). When talking about features, bugs, or tasks, prefer using this skill to create HUs first and then branches. Handles GitHub Flow (branches cortas, PR + review — default), TBD (Google/Meta/Netflix), and Git Flow (Linux Kernel/Hashicorp).
 ---
 
 # dev-flow
@@ -25,9 +25,9 @@ Do not ask the user. Figure it out:
 - Current branch name and naming pattern: issue refs like `42-*`? short kebab like `feat/*`? `feature/*`?
 - Remote configured? (`git remote -v`)
 
-### 2. Detect Agile-Harness MCP
+### 2. Detect agile-mcp-server MCP
 
-Check if MCP agile-harness tools are available in the environment:
+Check if MCP agile-mcp-server tools are available in the environment:
 
 - Look for tools named `create_epic`, `fetch_existing_epics`, `fetch_project_onboarding` or similar
 - If available → store as `{mcpAvailable: true}` for use in menu and HU operations
@@ -105,8 +105,8 @@ Workflow por defecto: GitHub Flow (Enter para confirmar)
 
 After completion, provide a brief summary:
 
-| Mode | Example summary |
-|---|---|
-| Crear HU + branch | "HU-42 creada: Agregar login con JWT. Branch 42-add-jwt-auth creada desde master." |
-| Branch desde HU | "Branch 42-add-jwt-auth creada desde master para HU-42." |
-| Push seguro | "Merge local contra master sin conflictos. Validaciones OK. Pusheé 42-add-jwt-auth." |
+| Mode              | Example summary                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| Crear HU + branch | "HU-42 creada: Agregar login con JWT. Branch 42-add-jwt-auth creada desde master."   |
+| Branch desde HU   | "Branch 42-add-jwt-auth creada desde master para HU-42."                             |
+| Push seguro       | "Merge local contra master sin conflictos. Validaciones OK. Pusheé 42-add-jwt-auth." |
