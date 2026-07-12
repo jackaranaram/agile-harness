@@ -28,23 +28,22 @@ Feature branches por ticket/historia (días). Todo va a `main` vía PR con code 
 ## Workflow Steps
 
 ### 1. Stash Uncommitted Changes
-
 - `git status -s` para verificar cambios
 - Si hay: `git stash push -u -m "Auto-stashed before GitHub Flow branch"` e informar al usuario
 
 ### 2. Switch to Main and Sync
-
 - `git checkout main`
 - `git pull origin main` (si hay remote)
 
 ### 3. Create Branch
-
 - `git checkout -b {tipo}/{kebab-desc}` o `git checkout -b {issue-num}-{kebab-desc}`
 
-### 4. Opcional: Issue Template
-
-- Si el usuario lo pide, incluir referencia al issue en el commit inicial o PR body
+### 4. Push Inicial y Draft PR
+- Crear un commit vacío inicial para poder abrir el PR: `git commit --allow-empty -m "chore: start work on #{issue-num}"`
+- Push inicial de la rama: `git push -u origin {branch-name}`
+- Crear Draft PR:
+  - Usar la herramienta `github/create_pull_request` con `draft: true` o ejecutar `gh pr create --draft --title "{tipo}: {desc} (#{issue-num})" --body "Closes #{issue-num}"`
+  - Esto activará automáticamente el CI/CD en GitHub.
 
 ### 5. Summary
-
-"Sincronicé main y creé 42-add-jwt-auth. Trabaja en esta rama y haz commit normalmente. Cuando termines, abre un PR a main."
+"Sincronicé main, creé la rama 42-add-jwt-auth, realicé el push inicial y abrí el Draft PR #15. El CI/CD ya se encuentra ejecutándose. ¡Ya puedes programar!"

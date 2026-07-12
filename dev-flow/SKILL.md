@@ -69,13 +69,16 @@ Workflow por defecto: GitHub Flow (Enter para confirmar)
    - Extraer de la respuesta: `{huId}`, `{huTitle}`, `{huType}` (feat/fix/docs/chore)
    - Si el MCP devuelve un formato diferente, mapear los campos relevantes
 
-2. **Crear branch desde la HU:**
-   - Cargar la reference del workflow seleccionado
-   - Si GitHub Flow (default): `git checkout -b "{huId}-{huTitle-kebab}"` desde `main`/`master`
-   - Stash previo, sync base branch
-   - Incluir el enlace o referencia a la HU en el commit template
+2. **Crear branch, push inicial y Draft PR:**
+   - Cargar la reference del workflow seleccionado.
+   - Si GitHub Flow (default):
+     - `git checkout -b "{huId}-{huTitle-kebab}"` desde `main`/`master`
+     - Stash previo, sync base branch.
+     - Crear commit vacío inicial: `git commit --allow-empty -m "chore: start work on {huId}"`
+     - Push inicial de la rama: `git push -u origin "{huId}-{huTitle-kebab}"`
+     - Crear Draft PR en GitHub usando la herramienta `github/create_pull_request` con `draft: true` (o mediante el CLI local `gh pr create --draft --title "{huType}: {huTitle} ({huId})" --body "Closes #{huId}"`).
 
-3. **Summary:** "HU-42 creada: Agregar login con JWT. Branch 42-add-jwt-auth creada desde master."
+3. **Summary:** "HU-42 creada. Branch 42-add-jwt-auth creada y subida. Draft PR #15 abierto para iniciar CI/CD."
 
 #### 4b. Branch desde HU existente
 
@@ -85,13 +88,16 @@ Workflow por defecto: GitHub Flow (Enter para confirmar)
    - Extraer `{huTitle}`, `{huType}`, `{huDescription}` de la respuesta
    - Si el MCP no encuentra la HU, informar al usuario y preguntar el título manualmente
 
-2. **Crear branch desde la HU:**
-   - Cargar la reference del workflow seleccionado
+2. **Crear branch, push inicial y Draft PR:**
+   - Cargar la reference del workflow seleccionado.
    - Nombre: `{huId}-{huTitle-kebab}` (o el formato que corresponda al workflow)
-   - Stash previo, sync base branch
+   - Stash previo, sync base branch.
    - `git checkout -b "{huId}-{huTitle-kebab}"`
+   - Crear commit vacío inicial: `git commit --allow-empty -m "chore: start work on {huId}"`
+   - Push inicial de la rama: `git push -u origin "{huId}-{huTitle-kebab}"`
+   - Crear Draft PR en GitHub usando la herramienta `github/create_pull_request` con `draft: true` (o mediante el CLI local `gh pr create --draft --title "{huType}: {huTitle} ({huId})" --body "Closes #{huId}"`).
 
-3. **Summary:** "Branch 42-add-jwt-auth creada desde master para HU-42: Agregar login con JWT."
+3. **Summary:** "Branch 42-add-jwt-auth creada y subida para HU-42. Draft PR #15 abierto para iniciar CI/CD."
 
 #### 4c. Push seguro
 
