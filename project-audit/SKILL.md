@@ -34,6 +34,7 @@ Do not ask the user. Figure it out:
 - **Existing configs**: lint, formatter, CI, pre-commit, editorconfig
 - **Remote provider**: detect GitHub/GitLab/Bitbucket from `git remote -v`
 - **Public or private**: `gh repo view --json isPrivate` if GitHub
+- **Audit Exclusions**: read `AGENTS.md` (if it exists) and search for a section like `## Exclusiones de Auditoría` or `## Audit Exclusions`. Parse any bullet points containing a check ID and its justification (e.g., `- **TESTS**: Justification` or `- TESTS: Justification`).
 
 ### 2. Determine Scope
 
@@ -62,11 +63,18 @@ Ej: "fix branch-protection,ci,pre-commit"
 
 Load `references/audit-checks.md` for the complete check list.
 
+Before running the checks, check if any check ID is in the parsed exclusions from `AGENTS.md`.
+
 For each applicable check (filtered by stack/scope in step 2):
 
-1. Run the detection command and capture output
-2. Assign status: `✅ Pass` | `⚠️ Warning` | `❌ Fail`
-3. Score as 1 (pass) or 0 (fail/warning)
+1. If the check ID is excluded:
+   - Do NOT run the detection command.
+   - Assign status: `➖ Excluido` and note the justification.
+   - Do not count it in the score (exclude it from both numerator and denominator).
+2. Otherwise:
+   - Run the detection command and capture output.
+   - Assign status: `✅ Pass` | `⚠️ Warning` | `❌ Fail`.
+   - Score as 1 (pass) or 0 (fail/warning).
 
 Present results as a formatted report:
 
@@ -82,21 +90,22 @@ Audit Report — jackaranaram/agile-harness
 🟡 High (stack-specific)
   [✅] LINT — ESLint configurado (eslint.config.js)
   [⚠️] FORMATTER — Prettier configurado pero sin script en package.json
-  [❌] TESTS — Sin framework de tests detectado
+  [➖] TESTS — Excluido: Test runner no configurado
+  [➖] TEST-FILES — Excluido: Test runner no configurado
   [⚠️] TS-STRICT — TypeScript strict mode NO habilitado
   [✅] LOCKFILE — package-lock.json presente
 
 🟢 Medium (team maturity)
-  [❌] PRE-COMMIT — Sin hooks de pre-commit
-  [❌] COMMITLINT — Sin commitlint configurado
+  [✅] PRE-COMMIT — Husky configurado
+  [✅] COMMITLINT — Commitlint configurado
   [✅] ENV-EXAMPLE — .env.example existe
 
 🔵 Low (optional)
-  [❌] EDITORCONFIG — Sin .editorconfig
-  [❌] LICENSE — Sin LICENSE file
+  [✅] EDITORCONFIG — .editorconfig presente
+  [➖] LICENSE — Excluido: Proyecto privado (temporalmente público)
   [✅] README — README.md existe
 
-Score: 6/13 (46%) — Professional Baseline: 10/13 ⚠️
+Score: 9/10 (90%) [3 Excluidos] — Professional Baseline: 10/13 ⚠️
 ```
 
 Save the full report as `{project-root}/.audit-report.md` for reference.
