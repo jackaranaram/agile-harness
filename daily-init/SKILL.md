@@ -127,7 +127,7 @@ Present a numbered menu. Each option delegates to another skill or runs a git co
 [1] Continuar HU-42 — checkout a 42-add-jwt-auth + mostrar diff
 [2] Iniciar HU nueva → dev-flow (Crear HU + branch)
 [3] Iniciar HU existente → dev-flow (Branch desde HU)
-[4] Push seguro → dev-flow (Push seguro)
+[4] Listo para Review → dev-flow (Listo para Review)
 [5] Update docs → technical-writer
 [6] Fix breaches — acciones sugeridas para cada breach detectado
 [7] Salir — no hacer nada
@@ -140,7 +140,7 @@ Present a numbered menu. Each option delegates to another skill or runs a git co
 | 1      | `git checkout {branch}`, then show `git diff --stat origin/{default}..HEAD`                                                                                                     |
 | 2      | Delegate to `dev-flow` mode "Crear HU + branch"                                                                                                                                 |
 | 3      | Delegate to `dev-flow` mode "Branch desde HU existente"                                                                                                                         |
-| 4      | Delegate to `dev-flow` mode "Push seguro"                                                                                                                                       |
+| 4      | Delegate to `dev-flow` mode "Listo para Review"                                                                                                                                 |
 | 5      | Delegate to `technical-writer`                                                                                                                                                  |
 | 6      | For each breach, show the specific command to fix it (e.g., `touch tests/auth/login.test.ts`, `git branch -D stale-branch`, `git add -A && git commit`, `cp .env.example .env`) |
 | 7      | "OK, avísame si necesitas algo."                                                                                                                                                |

@@ -9,7 +9,7 @@ AI agent skills for the agile-agent-harness ecosystem.
 | Skill | Description | Install |
 |---|---|---|
 | [daily-init](./daily-init/SKILL.md) | Single entry point for daily work — health check, session recap, breach detection, action menu | `npx skills add jackaranaram/agile --skill daily-init` |
-| [dev-flow](./dev-flow/SKILL.md) | Full Git lifecycle — create HU+branch, safe push with dry-run merge, strictly enforces PR/Issue templates | `npx skills add jackaranaram/agile --skill dev-flow` |
+| [dev-flow](./dev-flow/SKILL.md) | Full Git lifecycle — create HU+branch with automatic Draft PR (early CI/CD execution), safe push with dry-run merge, PR/Issue templates | `npx skills add jackaranaram/agile --skill dev-flow` |
 | [technical-writer](./technical-writer/SKILL.md) | Generate/update project context suite (6 docs + AGENTS.md + README.md + DESIGN.md + GitHub Templates) | `npx skills add jackaranaram/agile --skill technical-writer` |
 
 ## Install all skills
