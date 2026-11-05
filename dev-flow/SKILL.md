@@ -1,6 +1,6 @@
 ---
 name: dev-flow
-description: Manages Git branch creation, safe code pushes with zero bloat, local sync/pruning, isolated parallel worktrees, and feature rebasing. Automates clean feature/fix branches from updated main, toolchain quality gates (lint/format/typecheck), Draft PR creation, atomic iterative commits via commit --amend and git push --force-with-lease, git worktree isolation for parallel bugfixes/tasks without interrupting active development, and clean git rebase workflows against advanced origin/master. Enforces professional engineering health gates (atomic commits, lines/files thresholds, Conventional Commits). Use whenever the user asks to create a branch ("crear rama", "nueva feature", "empezar tarea"), push code ("push", "push seguro", "actualizar PR", "hacer force push", "enmendar commit"), synchronize/clean local branches ("sync", "sincronizar", "limpiar ramas", "podar ramas", "actualizar master", "prune"), work in parallel or isolate a task ("worktree", "en paralelo", "tarea aislada", "hotfix sin tocar rama actual", "aislar refactor", "aislar optimizacion", "aislar tests"), or bring latest master changes into an active branch ("rebase", "actualizar mi rama con master", "poner al día rama").
+description: Manages Git branch creation, safe code pushes with zero bloat, local sync/pruning, isolated parallel worktrees, feature rebasing, and remote CI verification. Automates clean feature/fix branches from updated main, toolchain quality gates (lint/format/typecheck), Draft PR creation, atomic iterative commits via commit --amend and git push --force-with-lease, git worktree isolation for parallel bugfixes/tasks without interrupting active development, clean git rebase workflows against advanced origin/master, and GitHub CLI CI watch (`gh pr checks --watch`) to prevent delivering failing builds. Enforces professional engineering health gates (atomic commits, lines/files thresholds, Conventional Commits). Use whenever the user asks to create a branch ("crear rama", "nueva feature", "empezar tarea"), push code ("push", "push seguro", "actualizar PR", "hacer force push", "enmendar commit"), synchronize/clean local branches ("sync", "sincronizar", "limpiar ramas", "podar ramas", "actualizar master", "prune"), work in parallel or isolate a task ("worktree", "en paralelo", "tarea aislada", "hotfix sin tocar rama actual", "aislar refactor", "aislar optimizacion", "aislar tests"), bring latest master changes into an active branch ("rebase", "actualizar mi rama con master", "poner al día rama"), or monitor CI checks ("verificar CI", "checks", "vigilar build").
 ---
 
 # dev-flow
@@ -9,9 +9,9 @@ Skill de automatización de Git enfocado en máxima productividad, historial lim
 100% autocontenido, agnóstico a cualquier lenguaje/stack, sin dependencias de MCPs externos y con **5 acciones fundamentales**:
 
 1. **`branch` (Crear rama limpia):** Crea ramas estandarizadas (`feat/*`, `fix/*`, `chore/*`, etc.) directamente desde `origin/master` (o `origin/main`), podando ramas locales huérfanas.
-2. **`push` (Push inteligente y seguro):** Valida que el proyecto compile y pase pruebas/linting localmente, y ejecuta push normal creando Draft PR o push iterativo (`commit --amend` + `push --force-with-lease`) sin ensuciar el historial de commits.
+2. **`push` (Push inteligente, seguro y verificado por CI):** Valida localmente, empuja la rama (creando Draft PR o enmendando con `--force-with-lease`) y **vigila con GitHub CLI (`gh pr checks --watch`)** para garantizar que los checks remotos pasen en verde antes de entregar el PR.
 3. **`sync` (Sincronizar y podar ramas locales):** Cambia a la rama principal (`main`/`master`), actualiza contra `origin` (`git pull`) y elimina todas las ramas locales mergeadas o cuyo remoto fue borrado (`[origin/...: gone]`).
-4. **`worktree` (Aislamiento para tareas paralelas e independientes):** Resuelve bugs, hotfixes, optimizaciones de rendimiento (`perf`), mejoras de cobertura de tests (`test`), refactors aislados (`refactor`) o auditorías de UI en una carpeta física paralela sin tocar la rama activa, sin hacer `stash`, sin interrumpir el servidor local de desarrollo (`pnpm start`), abriendo el PR y limpiando el worktree al finalizar.
+4. **`worktree` (Aislamiento para tareas paralelas e independientes):** Resuelve bugs, hotfixes, optimizaciones de rendimiento (`perf`), mejoras de cobertura de tests (`test`), refactors aislados (`refactor`) o auditorías de UI en una carpeta física paralela sin tocar la rama activa, sin hacer `stash`, sin interrumpir el servidor local de desarrollo (`pnpm start`), abriendo el PR, vigilando su CI y limpiando el worktree al finalizar.
 5. **`rebase` (Sincronizar rama activa con master avanzado):** Pone al día la rama de trabajo actual sobre el último `origin/master` manteniendo un historial 100% lineal y actualizando el remoto con `--force-with-lease`.
 
 ---
@@ -87,7 +87,6 @@ Cuando el usuario pide crear una rama o empezar una tarea:
      ```powershell
      git fetch --prune origin; git branch -vv | Where-Object { $_ -match '\[origin/.*: gone\]' } | ForEach-Object { $b = ($_.Trim() -split '\s+')[0]; if ($b -and $b -ne '*') { git branch -D $b } }; git checkout -B {tipo}/{descripcion-kebab-case} origin/{defaultBranch}
      ```
-   - Esto limpia automáticamente cualquier rama local cuyo remoto fue eliminado (post Squash & Merge) y garantiza que la nueva rama nace exactamente sobre el último commit de remoto sin heredar commits huérfanos.
 4. **Confirmación concisa:**
    - "Ramas locales huérfanas podadas y rama `{branch}` creada directamente desde `origin/{defaultBranch}` actualizado."
 
@@ -95,7 +94,7 @@ Cuando el usuario pide crear una rama o empezar una tarea:
 
 ### 3. Acción 2: Push Inteligente y Seguro (`push`)
 
-#### Paso 1: Precondición de Calidad (Quality Gate Universal)
+#### Paso 1: Precondición de Calidad Local (Quality Gate Universal)
 - **Nunca empujar código roto:** Verificar que el proyecto compile y pase linter/tests locales según el stack del proyecto (ej: TypeScript, Ruff, Cargo, Go test) antes de tocar el remoto.
 - Si alguna validación falla, **detener el push**, reportar el error y corregirlo.
 
@@ -117,6 +116,19 @@ Cuando el usuario pide crear una rama o empezar una tarea:
   - Enmendar el último commit: `git commit --amend --no-edit` (o con mensaje actualizado si cambió el alcance).
   - Empujar con seguridad: `git push --force-with-lease origin {currentBranch}`
   - Confirmar: "Commit enmendado y actualizado en remoto con --force-with-lease."
+
+#### Paso 3: Vigilancia Remota de CI (GitHub Actions CI Watch)
+> **Regla de Entrega Verificada:** El agente **NUNCA debe dar por completada una tarea ni entregar un PR como "listo" si el CI remoto falla**.
+- Tras el push inicial o iterativo, verificar el estado de los checks remotos con:
+  ```powershell
+  gh pr checks {currentBranch} --watch
+  ```
+- Si algún check falla (rojo ❌):
+  1. Inspeccionar el log del runner remoto: `gh run view --log-failed`
+  2. Identificar el fallo (diferencia de entorno, tests de integración, linters remotos).
+  3. Corregir el código localmente, compilar y ejecutar tests de nuevo.
+  4. Enmendar el commit y volver a empujar con `git push --force-with-lease origin {currentBranch}`.
+  5. Volver a vigilar hasta que todos los checks estén en verde (✅).
 
 ---
 
@@ -173,8 +185,12 @@ Cuando el usuario pide sincronizar, podar ramas huérfanas, o actualizar la rama
      ```powershell
      gh pr create --repo <owner/repo> --head {tipo}/{descripcion-kebab-case} --base {defaultBranch} --title "{tipo}({scope}): {description}" --body "## Summary\n- ..."
      ```
+   - **Paso D (Vigilancia remota):** Verificar checks del PR:
+     ```powershell
+     gh pr checks {tipo}/{descripcion-kebab-case} --watch
+     ```
 4. **Desmantelar y limpiar el Worktree:**
-   - Una vez la rama está subida y el PR abierto en GitHub:
+   - Una vez la rama está subida, el PR abierto y el CI en verde:
      ```powershell
      git worktree remove ../{repo}-{tipo}-{sufijo}
      ```
@@ -223,15 +239,18 @@ git fetch origin; git worktree add -b fix/hotfix-pnl ../fixed-frontend-hotfix or
 git -C ../fixed-frontend-hotfix add <archivos>; git -C ../fixed-frontend-hotfix commit -m "fix(pnl): correct calculation"
 git -C ../fixed-frontend-hotfix push -u origin fix/hotfix-pnl
 gh pr create --head fix/hotfix-pnl --base master --title "fix(pnl): correct calculation" --body "..."
+gh pr checks fix/hotfix-pnl --watch
 git worktree remove ../fixed-frontend-hotfix
 
 # 4. Rebase de rama activa sobre master actualizado
 git fetch origin; git rebase origin/master; git push --force-with-lease origin <currentBranch>
 
-# 5. Push Inicial + Draft PR
+# 5. Push Inicial + Draft PR + Vigilancia CI
 git add <archivos>; git commit -m "feat(scope): description"; git push -u origin <branch>
 gh pr create --draft --title "feat(scope): description" --body "## Summary`n- ..."
+gh pr checks <branch> --watch
 
-# 6. Push Iterativo Seguro (amend)
+# 6. Push Iterativo Seguro (amend) + Vigilancia CI
 git add <archivos>; git commit --amend --no-edit; git push --force-with-lease origin <branch>
+gh pr checks <branch> --watch
 ```
