@@ -1,18 +1,38 @@
 ---
 name: dev-flow
-description: Manages Git branch creation, safe code pushes with zero bloat, local sync/pruning, isolated parallel worktrees, feature rebasing, and remote CI verification. Automates clean feature/fix branches from updated main, toolchain quality gates (lint/format/typecheck), Draft PR creation, atomic iterative commits via commit --amend and git push --force-with-lease, git worktree isolation for parallel bugfixes/tasks without interrupting active development, clean git rebase workflows against advanced origin/master, and GitHub CLI CI watch (`gh pr checks --watch`) to prevent delivering failing builds. Enforces professional engineering health gates (atomic commits, lines/files thresholds, Conventional Commits). Use whenever the user asks to create a branch ("crear rama", "nueva feature", "empezar tarea"), push code ("push", "push seguro", "actualizar PR", "hacer force push", "enmendar commit"), synchronize/clean local branches ("sync", "sincronizar", "limpiar ramas", "podar ramas", "actualizar master", "prune"), work in parallel or isolate a task ("worktree", "en paralelo", "tarea aislada", "hotfix sin tocar rama actual", "aislar refactor", "aislar optimizacion", "aislar tests"), bring latest master changes into an active branch ("rebase", "actualizar mi rama con master", "poner al día rama"), or monitor CI checks ("verificar CI", "checks", "vigilar build").
+description: Manages Git branch creation, safe code pushes with zero bloat, local sync/pruning, isolated parallel worktrees, feature rebasing, and remote CI verification. Automates clean feature/fix branches from updated main, toolchain quality gates (lint/format/typecheck), Draft PR creation, atomic iterative commits via commit --amend and git push --force-with-lease, git worktree isolation for parallel bugfixes/tasks without interrupting active development, clean git rebase workflows against advanced origin/master, active PR lifecycle monitoring (auto-detect open PRs, recommend merge or branch stacking when PR commits/lines exceed limits), and GitHub CLI CI watch (`gh pr checks --watch`) to prevent delivering failing builds. Enforces professional engineering health gates (atomic commits, lines/files thresholds, Conventional Commits). Use whenever the user asks to create a branch ("crear rama", "nueva feature", "empezar tarea"), push code ("push", "push seguro", "actualizar PR", "hacer force push", "enmendar commit"), synchronize/clean local branches ("sync", "sincronizar", "limpiar ramas", "podar ramas", "actualizar master", "prune"), work in parallel or isolate a task ("worktree", "en paralelo", "tarea aislada", "hotfix sin tocar rama actual", "aislar refactor", "aislar optimizacion", "aislar tests"), bring latest master changes into an active branch ("rebase", "actualizar mi rama con master", "poner al día rama"), or monitor CI checks ("verificar CI", "checks", "vigilar build").
 ---
 
 # dev-flow
 
 Skill de automatización de Git enfocado en máxima productividad, historial limpio y estándares de ingeniería profesional (Google Engineering Practices) en Windows (PowerShell).
-100% autocontenido, agnóstico a cualquier lenguaje/stack, sin dependencias de MCPs externos y con **5 acciones fundamentales**:
+100% autocontenido, agnóstico a cualquier lenguaje/stack, sin dependencias de MCPs externos y con **5 acciones fundamentales** y **gestión proactiva del ciclo de vida de Pull Requests**:
 
-1. **`branch` (Crear rama limpia):** Crea ramas estandarizadas (`feat/*`, `fix/*`, `chore/*`, etc.) directamente desde `origin/master` (o `origin/main`), podando ramas locales huérfanas.
-2. **`push` (Push inteligente, seguro y verificado por CI):** Valida localmente, empuja la rama (creando Draft PR o enmendando con `--force-with-lease`) y **vigila con GitHub CLI (`gh pr checks --watch`)** para garantizar que los checks remotos pasen en verde antes de entregar el PR.
+1. **`branch` (Crear rama limpia):** Crea ramas estandarizadas (`feat/*`, `fix/*`, `chore/*`, etc.) directamente desde `origin/master` (o `origin/main`), podando ramas locales huérfanas y detectando PRs abiertos en conflicto.
+2. **`push` (Push inteligente, seguro y verificado por CI):** Valida localmente, empuja la rama (creando Draft PR o enmendando con `--force-with-lease`), monitorea los límites de commits/líneas recomendando merge cuando madura, y **vigila con GitHub CLI (`gh pr checks --watch`)** para garantizar que los checks remotos pasen en verde antes de entregar el PR.
 3. **`sync` (Sincronizar y podar ramas locales):** Cambia a la rama principal (`main`/`master`), actualiza contra `origin` (`git pull`) y elimina todas las ramas locales mergeadas o cuyo remoto fue borrado (`[origin/...: gone]`).
 4. **`worktree` (Aislamiento para tareas paralelas e independientes):** Resuelve bugs, hotfixes, optimizaciones de rendimiento (`perf`), mejoras de cobertura de tests (`test`), refactors aislados (`refactor`) o auditorías de UI en una carpeta física paralela sin tocar la rama activa, sin hacer `stash`, sin interrumpir el servidor local de desarrollo (`pnpm start`), abriendo el PR, vigilando su CI y limpiando el worktree al finalizar.
 5. **`rebase` (Sincronizar rama activa con master avanzado):** Pone al día la rama de trabajo actual sobre el último `origin/master` manteniendo un historial 100% lineal y actualizando el remoto con `--force-with-lease`.
+
+---
+
+## 🚦 Protocolo Proactivo de Monitoreo de PRs (PR Lifecycle Sentinel)
+
+El agente **SIEMPRE debe inspeccionar el estado de los PRs abiertos** (`gh pr list --state open`) al iniciar una sesión, al crear una rama o al evaluar un push:
+
+### Regla 1: Detección de PR Maduro para Merge (Bloat Prevention)
+Si la rama actual ya tiene un PR abierto asociado y se detecta alguna de estas condiciones:
+- Acumula **más de 3 a 4 commits lógicos**.
+- La suma neta de cambios de autoría supera **250 - 300 líneas de código**.
+- El CI remoto ya pasó en verde (✅) y el alcance de la tarea original está cerrado.
+
+➡️ **Acción del Agente:** El agente debe **detenerse y recomendar formalmente el merge antes de seguir agregando más features**:
+> *"⚠️ Tu PR #{num} (`{branch}`) ya tiene {n} commits y {lineas} líneas con CI en verde. Para mantener la mantenibilidad y bisectabilidad según Google Engineering Standards, recomiendo mergear este PR a master ahora antes de continuar. ¿Deseas hacer merge o encadenar una nueva rama (Stacked PR) para los siguientes cambios?"*
+
+### Regla 2: Prevención de Ramas Huérfanas con PR Pendiente
+Si el usuario pide crear una nueva rama (`branch` o `worktree`) pero ya existe un PR abierto en su rama anterior que está listo y con checks verdes:
+➡️ **Acción del Agente:** Advertir amablemente:
+> *"💡 Tienes el PR #{num} (`{branch_anterior}`) abierto y con checks pasando. Te sugiero mergearlo a master antes de crear esta nueva rama para que tu nueva feature nazca con los cambios previos integrados. Si prefieres dejarlo abierto, crearemos la nueva rama directamente desde el último origin/master."*
 
 ---
 
@@ -67,6 +87,7 @@ El agente debe inferir del contexto del repositorio y excluir de las métricas d
 - Verificar si es git repo: `git rev-parse --is-inside-work-tree`
 - Detectar rama default: `main` o `master`
 - Rama actual y estado: `git status -s`
+- Detectar PRs activos: `gh pr list --state open --limit 5`
 
 ---
 
@@ -79,15 +100,17 @@ Cuando el usuario pide crear una rama o empezar una tarea:
    - Tipos válidos: `feat`, `fix`, `refactor`, `perf`, `test`, `chore`, `docs`, `style`.
    - Ejemplos: `feat/market-compact-view`, `fix/header-sticky-alignment`, `refactor/auth-context`, `perf/memoize-odds-selector`.
    - Si el usuario proporciona un número de issue (ej: #42), puede usarse `feat/42-market-view` o `42-market-view`.
-2. **Stash preventivo si hay cambios sucios:**
+2. **Verificar PRs activos y advertir si corresponde (Regla 2 del Sentinel):**
+   - Si la rama actual tiene un PR abierto con checks verdes, sugerir merge antes de abrir una rama no relacionada.
+3. **Stash preventivo si hay cambios sucios:**
    - Si `git status -s` tiene cambios: `git stash push -u -m "Auto-stashed before branch creation"` e informar al usuario.
-3. **Podar ramas locales huérfanas y sincronizar desde `origin`:**
+4. **Podar ramas locales huérfanas y sincronizar desde `origin`:**
    - **NUNCA** hacer checkout a `main` local ni crear ramas desde la rama activa actual.
    - Ejecutar:
      ```powershell
      git fetch --prune origin; git branch -vv | Where-Object { $_ -match '\[origin/.*: gone\]' } | ForEach-Object { $b = ($_.Trim() -split '\s+')[0]; if ($b -and $b -ne '*') { git branch -D $b } }; git checkout -B {tipo}/{descripcion-kebab-case} origin/{defaultBranch}
      ```
-4. **Confirmación concisa:**
+5. **Confirmación concisa:**
    - "Ramas locales huérfanas podadas y rama `{branch}` creada directamente desde `origin/{defaultBranch}` actualizado."
 
 ---
@@ -98,8 +121,9 @@ Cuando el usuario pide crear una rama o empezar una tarea:
 - **Nunca empujar código roto:** Verificar que el proyecto compile y pase linter/tests locales según el stack del proyecto (ej: TypeScript, Ruff, Cargo, Go test) antes de tocar el remoto.
 - Si alguna validación falla, **detener el push**, reportar el error y corregirlo.
 
-#### Paso 2: Evaluar Health Gates y Determinar Modo de Push
+#### Paso 2: Evaluar Health Gates y Estado del PR
 - Evaluar archivos modificados (excluyendo lockfiles y tipos generados).
+- **Inspeccionar madurez del PR (Regla 1 del Sentinel):** Si agregar este commit sobrepasa los límites de 3-4 commits o 300 líneas, recomendar merge antes de continuar.
 - Si es una corrección o ajuste iterativo del commit anterior: **Modo B (Amend)**.
 - Si es una capa modular nueva y el PR tiene < 4 commits: **Modo A (Nuevo Commit)**.
 
@@ -227,13 +251,16 @@ Cuando la rama principal remota (`origin/master` o `origin/main`) ha recibido nu
 ## Resumen de Comandos PowerShell
 
 ```powershell
-# 1. Crear rama limpia con poda automática de huérfanas
+# 1. Detectar PRs activos al inicio
+gh pr list --state open --limit 5
+
+# 2. Crear rama limpia con poda automática de huérfanas
 git fetch --prune origin; git branch -vv | Where-Object { $_ -match '\[origin/.*: gone\]' } | ForEach-Object { $b = ($_.Trim() -split '\s+')[0]; if ($b -and $b -ne '*') { git branch -D $b } }; git checkout -B feat/nueva-feature origin/master
 
-# 2. Sincronizar master y podar ramas locales huérfanas/mergeadas
+# 3. Sincronizar master y podar ramas locales huérfanas/mergeadas
 git checkout master; git pull origin master; git fetch --prune origin; git branch -vv | Where-Object { $_ -match '\[origin/.*: gone\]' } | ForEach-Object { $b = ($_.Trim() -split '\s+')[0]; if ($b -and $b -ne '*' -and $b -ne 'master' -and $b -ne 'main') { git branch -D $b } }; git branch --merged | Where-Object { $_.Trim() -notmatch '^(\*|master$|main$|dev$|develop$)' } | ForEach-Object { $b = $_.Trim(); if ($b) { git branch -d $b } }
 
-# 3. Trabajo paralelo aislado con Worktree (Bugfix, Perf, Test o Refactor aislado)
+# 4. Trabajo paralelo aislado con Worktree (Bugfix, Perf, Test o Refactor aislado)
 git fetch origin; git worktree add -b fix/hotfix-pnl ../fixed-frontend-hotfix origin/master
 # ... realizar cambios, test y commit en ../fixed-frontend-hotfix ...
 git -C ../fixed-frontend-hotfix add <archivos>; git -C ../fixed-frontend-hotfix commit -m "fix(pnl): correct calculation"
@@ -242,15 +269,15 @@ gh pr create --head fix/hotfix-pnl --base master --title "fix(pnl): correct calc
 gh pr checks fix/hotfix-pnl --watch
 git worktree remove ../fixed-frontend-hotfix
 
-# 4. Rebase de rama activa sobre master actualizado
+# 5. Rebase de rama activa sobre master actualizado
 git fetch origin; git rebase origin/master; git push --force-with-lease origin <currentBranch>
 
-# 5. Push Inicial + Draft PR + Vigilancia CI
+# 6. Push Inicial + Draft PR + Vigilancia CI
 git add <archivos>; git commit -m "feat(scope): description"; git push -u origin <branch>
 gh pr create --draft --title "feat(scope): description" --body "## Summary`n- ..."
 gh pr checks <branch> --watch
 
-# 6. Push Iterativo Seguro (amend) + Vigilancia CI
+# 7. Push Iterativo Seguro (amend) + Vigilancia CI
 git add <archivos>; git commit --amend --no-edit; git push --force-with-lease origin <branch>
 gh pr checks <branch> --watch
 ```
