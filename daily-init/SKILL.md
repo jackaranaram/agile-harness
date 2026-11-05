@@ -1,162 +1,79 @@
 ---
 name: daily-init
-description: Single entry point for daily work sessions. Checks environment health (blocking if MCPs or dependencies are missing), recaps session state (branch, HU, last commit), detects pending items and breaches via heuristics, and presents an action menu that delegates to other skills. Use this skill at the START OF EVERY SESSION or whenever the user greets you ("hola", "buenos días", "empecemos", "qué hay pendiente", "qué hago hoy", "cómo vamos", "estado del proyecto").  It orchestrates dev-flow for branches and push, technical-writer for docs, and the agile-mcp-server MCP for HU management. Do NOT wait for the user to ask — if they say hello or any greeting, run this skill proactively.
+description: Generates a Scrum Daily Standup report at the start of a session. Analyzes Git state (branch, dirty status, last commit), associated user stories/epics (via agile MCP or branch inference), and project breaches (uncommitted files, missing tests, .env drift, stale branches) without blocking or executing modifying commands. Trigger whenever starting a session or greeting ("hola", "buenos días", "qué hay pendiente", "cómo vamos", "estado del proyecto", "qué hago hoy").
 ---
 
 # daily-init
 
-Orchestrator that consolidates every session start into a single command. Runs health checks, recaps state, detects breaches, and presents an actionable menu.
+Skill de diagnóstico y sincronización matutina (Scrum Daily Standup). Diseñado bajo el principio de **responsabilidad única (SRP)**: su único propósito es inspeccionar el estado actual del proyecto y entregar un reporte ejecutivo claro, conciso y de solo lectura.
+
+**Características principales:**
+- **100% no bloqueante:** Si una herramienta opcional (como el MCP de Agile) no está conectada o no es un repositorio Git, reporta el estado con gracia sin detener la interacción ni arrojar errores fatales.
+- **Sin efectos secundarios:** No ejecuta modificaciones, commits ni eliminaciones de ramas.
+- **PowerShell nativo:** Libre de operadores Bash o dependencias frágiles de CLI.
 
 ---
 
-## Workflow
+## Workflow de Inspección
 
-### 1. Health Check (blocking)
+Cuando se active, ejecuta las siguientes 3 revisiones en orden e imprime el reporte final:
 
-Check each dependency. If any is missing, show installation instructions and STOP.
+### 1. Inspección de Git y Sesión Actual
+- Verificar si el directorio es un repositorio Git (`git rev-parse --is-inside-work-tree`).
+  - Si no lo es, indicarlo y finalizar el reporte.
+- Detectar la rama actual (`git branch --show-current`).
+- Verificar el estado del árbol de trabajo (`git status -s`):
+  - Contar archivos modificados/sin rastrear (`dirty` vs `clean`).
+- Obtener el último commit local (`git log -1 --format="%h — %s (%cr)"`).
+- Comparar con el remoto configurado (`git status -uno` o estado vs `origin/<branch>`).
 
-#### 1a. Git Repository
+### 2. Detección de Historias de Usuario (HU) / Tareas
+- **Inferencia por rama:** Extraer prefijo numérico o kebab si existe (ej. `42-add-jwt` o `feat/42-add-jwt` $\rightarrow$ `HU-42`).
+- **Enriquecimiento opcional (agile-mcp-server):**
+  - Si las herramientas MCP (`fetch_existing_epics` o similares) están disponibles en el entorno, consultarlas silenciosamente para obtener el título real de la HU y listar los ítems en progreso y pendientes inmediatos.
+  - Si el MCP no está configurado o falla, simplemente presentar la HU inferida por el nombre de la rama sin alertas de error ni bloqueos.
 
-- `git rev-parse --is-inside-work-tree`
-- If not a git repo: "No hay repositorio Git en este directorio. Crear uno con `git init` o abre el proyecto correcto."
-- If yes: detect default branch (`main`/`master`), remote (`git remote -v`)
+### 3. Detección Heurística de Brechas y Alertas (Breaches)
+Ejecutar revisiones preventivas rápidas:
+- **Cambios acumulados sin commit:** Si hay más de 5 archivos modificados en `git status -s`.
+- **Stashes guardados:** `git stash list` (alertar si existen stashes olvidados).
+- **Ramas locales inactivas (stale branches):** Revisar si hay ramas locales distintas a la principal sin commits en más de 48 horas.
+- **Desincronización de variables (.env drift):** Si existen `.env.example` y `.env`, contrastar nombres de variables y alertar si faltan variables en uno u otro.
+- **Tests faltantes en cambios recientes:** Listar archivos de código (`.ts`, `.tsx`, `.py`, etc.) modificados en los últimos 7 días y alertar si carecen de su archivo de prueba correspondiente.
 
-#### 1b. MCP agile-mcp-server
+---
 
-- Check if tools like `create_epic`, `fetch_existing_epics`, `fetch_project_onboarding` are available in the environment
-- If missing: "MCP agile-mcp-server no detectado. Asegúrate de tenerlo configurado en tu cliente. Para instalarlo: npx @jackaranaram/agile-mcp-server"
-- If present: test connectivity by calling a simple endpoint (e.g., `fetch_project_onboarding` or `fetch_existing_epics` with no params)
+## Formato del Reporte Daily
 
-#### 1c. NPX Skills Package
+El resultado debe presentarse de forma visual, directa y sin introducciones vacías:
 
-- Run `npx skills --version 2>&1` (or `npx skills --help`)
-- If not found or errors: "Skills pack no instalado. Instalar con: npx skills"
-- If found: note the version
+```markdown
+# ☀️ Scrum Daily Report — {project-name}
 
-#### 1d. Required Skills
+### 📌 1. ¿Dónde nos quedamos? (Estado Actual)
+* **Branch activa:** `{current-branch}` ({clean / dirty, con n cambios pendientes})
+* **Último commit:** `{hash} — {mensaje}` ({hace X tiempo})
+* **Sincronización:** {Al día con origin / X commits adelante}
 
-- Check if the following skill directories exist:
-  - `dev-flow` (in the configured skills path)
-  - `technical-writer`
-- If any missing: "Skill {name} no encontrado. Asegúrate de que esté instalado en la ruta de skills."
+### 📋 2. Tarea en Curso
+* **HU Detectada:** {HU-ID — Título o "Sin HU asociada en el nombre de branch"}
+* **Pendientes inmediatos:**
+  - {HU-X / Tarea X si el MCP está presente, o "Usa tu tablero ágil habitual"}
 
-**If any check fails, show ALL failures at once** (not one by one) so the user can fix everything at once, then STOP.
+### ⚠️ 3. Alertas y Brechas Preventivas
+* {Listado de brechas encontradas: .env drift, stashes pendientes, tests huérfanos}
+* *(Si no hay brechas: "✅ Árbol limpio y configuración consistente")*
 
-### 2. Session Recap
-
-Collect and display the current session state. Use bullet points, keep it concise.
-
+### 🎯 4. Foco Sugerido
+* {Recomendación de 1 o 2 líneas sobre el siguiente paso lógico, ej.: "Continuar con la implementación de X y luego usar `dev-flow push` para subir cambios con seguridad."}
 ```
-📌 Sesión actual — {project-name}
-
-Branch: {current-branch} ({dirty/clean}, {n} cambios sin commit)
-HU asociada: {HU-XX — title} (detectada por nombre de branch)
-Último commit: "{message}" — hace {X}h
-Último push: hace {X}h (vs origin)
-```
-
-**HU detection from branch name:**
-
-- If branch matches `{number}-{kebab}` (e.g., `42-add-jwt-auth`): extract `HU-42` and call MCP `fetch_existing_epics` to get the title
-- If branch matches `{type}/{desc}` (e.g., `feat/login-form`): no HU detected, show "Branch sin HU asociada"
-
-### 3. Pending Items (via MCP)
-
-Call `fetch_existing_epics` (or equivalent) to get all HUs:
-
-```
-📋 Historias de Usuario
-
-En progreso (branch detectada):
-  • HU-42 — Agregar login con JWT
-
-Pendientes:
-  • HU-45 — Fix header alignment mobile
-  • HU-47 — Upgrade React to 19
-```
-
-- Cross-reference branch names with HU IDs to mark "en progreso"
-- Include count: "2 pendientes, 1 en progreso"
-
-### 4. Breach Detection (heuristic)
-
-Run the following checks in parallel. Each check is a **suggestion**, not a command. Show only checks that find something.
-
-#### 4a. Tests faltantes
-
-- List files in `src/` (`.ts`, `.tsx`, `.js`, `.jsx`, `.py`)
-- For each, check if corresponding test file exists in `tests/`, `__tests__/`, or `src/**/*.test.*`
-- Only show if the file has been recently modified (last 7 days): "src/auth/login.ts no tiene test correspondiente"
-- Limit: show max 3 suggestions
-
-#### 4b. Stale branches
-
-- `git branch` (list local, excluding default)
-- For each: `git log -1 --format=%ci {branch}` → check age
-- If > 48h since last commit: "Branch feat/old-feature no tiene actividad desde hace {X} días"
-- Suggest cleaning up: "¿Eliminar ramas stale?"
-
-#### 4c. Cambios sin commit
-
-- `git status -s` → count tracked modified files
-- If > 5 tracked files uncommitted: "{n} archivos modificados sin commit. ¿Revisar y commitear?"
-- Check stash too: `git stash list` → if entries exist, remind user
-
-#### 4d. .env drift
-
-- If `.env.example` exists:
-  - Extract keys (lines before `=`)
-  - Compare with `.env` keys
-  - If keys missing in `.env`: ".env.example tiene {keys} que .env no tiene"
-  - If keys missing in `.env.example`: ".env tiene {keys} que .env.example no tiene"
-
-#### 4e. Docs staleness
-
-- Check `AGENTS.md`, `docs/` modification dates: `git log -1 --format=%ci AGENTS.md`
-- Compare with last code commit: `git log -1 --format=%ci`
-- If docs older than last code commit by > 7 days: "AGENTS.md no se actualiza desde hace {X} días. Sugerir ejecutar technical-writer."
-- Also check if docs exist at all
-
-### 5. Action Menu
-
-Present a numbered menu. Each option delegates to another skill or runs a git command directly.
-
-```
-🎯 ¿Qué hacemos hoy?
-
-[1] Continuar HU-42 — checkout a 42-add-jwt-auth + mostrar diff
-[2] Iniciar HU nueva → dev-flow (Crear HU + branch)
-[3] Iniciar HU existente → dev-flow (Branch desde HU)
-[4] Listo para Review → dev-flow (Listo para Review)
-[5] Update docs → technical-writer
-[6] Fix breaches — acciones sugeridas para cada breach detectado
-[7] Salir — no hacer nada
-```
-
-**Behavior per option:**
-
-| Option | Action                                                                                                                                                                          |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1      | `git checkout {branch}`, then show `git diff --stat origin/{default}..HEAD`                                                                                                     |
-| 2      | Delegate to `dev-flow` mode "Crear HU + branch"                                                                                                                                 |
-| 3      | Delegate to `dev-flow` mode "Branch desde HU existente"                                                                                                                         |
-| 4      | Delegate to `dev-flow` mode "Listo para Review"                                                                                                                                 |
-| 5      | Delegate to `technical-writer`                                                                                                                                                  |
-| 6      | For each breach, show the specific command to fix it (e.g., `touch tests/auth/login.test.ts`, `git branch -D stale-branch`, `git add -A && git commit`, `cp .env.example .env`) |
-| 7      | "OK, avísame si necesitas algo."                                                                                                                                                |
-
-After executing any option, return to the menu so the user can chain actions.
 
 ---
 
 ## Triggering
 
-This skill triggers proactively on ANY greeting or session-start phrase:
+Esta skill se activa proactivamente ante cualquier saludo o inicio de sesión:
+- "hola", "buenos días", "buenas tardes", "empecemos", "arranquemos"
+- "qué hay pendiente", "cómo vamos", "dame el estado", "qué hago hoy", "daily"
+- Al iniciar una nueva conversación si el contexto es vago y se requiere orientación inicial.
 
-- "hola", "buenos días", "buenas tardes", "qué tal", "hey", "hi"
-- "empecemos", "arranquemos", "vamos allá"
-- "qué hay pendiente", "por dónde iba", "cómo vamos", "dame estado"
-- "qué hago hoy", "qué toca hoy", "plan de hoy"
-- Also when the user opens a new session/terminal and the first message is vague
-
-When triggered, run the full workflow (1-5) without asking the user if they want it — they greeted you, so they want the state.
