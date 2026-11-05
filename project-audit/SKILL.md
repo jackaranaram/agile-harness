@@ -15,10 +15,11 @@ description: >-
 
 # project-audit
 
-This skill audits a project against professional standards and optionally fixes failing items. It has two modes:
+This skill audits a project against professional standards and optionally fixes failing items or bootstraps new/existing repositories. It has three modes:
 
-- **[1] audit** — runs all checks, produces a scored report with priorities per project context
+- **[1] audit** — runs all checks (including dependency bloat and classification), produces a scored report with priorities per project context
 - **[2] fix <item(s)>** — applies fixes for specific check IDs from the audit report (only deterministic fixes)
+- **[3] bootstrap** — performs deep architectural analysis and web research on library stability to generate an `implementation_plan.md` artifact before standardizing tooling (CI/CD, formatters, hooks, dependency cleanup)
 
 ---
 
@@ -30,6 +31,7 @@ Do not ask the user. Figure it out:
 
 - **Git**: `git rev-parse --is-inside-work-tree`, default branch, remote URL
 - **Language stack**: read `package.json`, `tsconfig.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `composer.json`
+- **Dependencies & Bloat**: inspect `dependencies` vs `devDependencies`, search for unneeded packages (`axios` vs native `fetch`, `lodash` vs ES6+, `moment` vs `Intl`) and check lockfile presence
 - **Framework**: Next.js, React, Vue, FastAPI, Django, etc.
 - **Existing configs**: lint, formatter, CI, pre-commit, editorconfig
 - **Remote provider**: detect GitHub/GitLab/Bitbucket from `git remote -v`
@@ -40,10 +42,10 @@ Do not ask the user. Figure it out:
 
 From the analysis, determine which checks apply:
 
-- **🔴 Critical**: apply to ALL repos (branch protection, CI/CD, .gitignore)
-- **🟡 High**: apply based on stack (lint if JS/TS/Python/Go, tests if src/ exists)
-- **🟢 Medium**: apply based on team/project maturity
-- **🔵 Low**: universal but optional
+- **🔴 Critical**: apply to ALL repos (branch protection, CI/CD, .gitignore, lockfile)
+- **🟡 High**: apply based on stack (lint, format, ts-strict, dependency bloat, classification)
+- **🟢 Medium**: apply based on team/project maturity (pre-commit, commitlint, .env.example)
+- **🔵 Low**: universal but optional (editorconfig, license, security)
 
 ### 3. Present the Menu
 
@@ -51,10 +53,9 @@ From the analysis, determine which checks apply:
 Project-audit — jackaranaram/agile-harness
 Stack: Next.js (TypeScript) | GitHub | Private
 
-[1] Audit — revisar todos los estándares
-[2] Fix <items> — corregir items específicos del reporte
-
-Ej: "fix branch-protection,ci,pre-commit"
+[1] Audit — revisar todos los estándares y dependencias
+[2] Fix <items> — corregir items específicos del reporte (ej: "fix branch-protection,ci,pre-commit")
+[3] Bootstrap — investigar estabilidad y generar Implementation Plan completo
 ```
 
 ### 4. Execute by Mode
@@ -108,7 +109,7 @@ Audit Report — jackaranaram/agile-harness
 Score: 9/10 (90%) [3 Excluidos] — Professional Baseline: 10/13 ⚠️
 ```
 
-Save the full report as `{project-root}/.audit-report.md` for reference.
+Save the full report as `{project-root}/.audit-report.md` for reference. When generating the report, check if `.audit-report.md` is listed in the project's `.gitignore` file. If it is not, automatically append `.audit-report.md` (preceded by a `# project audit report` comment) to `.gitignore` to prevent checking it into the repository.
 
 #### 4b. Fix Mode
 
@@ -140,12 +141,30 @@ Fixable items (deterministic):
 | `LICENSE`           | Download and create LICENSE file (ask type)       | inline in SKILL.md                    |
 | `GITIGNORE`         | Generate `.gitignore` for detected stack          | inline in SKILL.md                    |
 | `TS-STRICT`         | Enable strict mode in `tsconfig.json`             | inline in SKILL.md                    |
+| `PKG-DEV-MISCLASSIFIED` | Move dev tools from dependencies to devDependencies | inline in SKILL.md                |
 
 Items NOT fixable by this skill (require human judgment):
 
 - Test framework selection (user decides Jest vs Vitest vs Playwright)
 - CI/CD pipeline logic (templates exist but workflow content is project-specific)
 - Code architecture decisions
+
+#### 4c. Bootstrap Mode
+
+When the user asks to bootstrap or standardize the project:
+
+1. **Perform Codebase Scan**: Audit linters, package managers, testing frameworks, CI/CD, and dependency classifications.
+2. **Web Research (Stability & Best Practices)**:
+   - Verify recommended production versions for core frameworks (e.g. Next.js, React, FastAPI).
+   - Check ecosystem best practices for toolchain (e.g. Biome vs Prettier+ESLint, Ruff for Python).
+   - Identify deprecated libraries or known security advisories.
+3. **Generate Implementation Plan Artifact**:
+   - Create an `implementation_plan.md` artifact with `requestFeedback: true` detailing:
+     - Research findings on package stability.
+     - Dependency optimization (packages to remove or move to `devDependencies`).
+     - Concrete toolchain configuration proposed (linters, pre-commit, CI/CD).
+4. **Pause for Human Review**: Stop and wait for user approval before modifying files.
+5. **Deterministic Execution**: Once approved, apply configurations using Conventional Commits.
 
 ### 5. Summary
 
