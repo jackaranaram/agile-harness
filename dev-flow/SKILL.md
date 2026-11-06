@@ -1,6 +1,6 @@
 ---
 name: dev-flow
-description: Manages Git branch creation, safe code pushes with zero bloat, local sync/pruning, isolated parallel worktrees, feature rebasing, and remote CI verification. Automates clean feature/fix branches from updated main, toolchain quality gates (lint/format/typecheck), Draft PR creation, atomic iterative commits via commit --amend and git push --force-with-lease, git worktree isolation for parallel bugfixes/tasks without interrupting active development, clean git rebase workflows against advanced origin/master, active PR lifecycle monitoring (auto-detect open PRs, recommend merge or branch stacking when PR commits/lines exceed limits), GitHub CLI CI watch (`gh pr checks --watch`) to prevent delivering failing builds, and automated transition from Draft to Ready for Review (`gh pr ready`) upon task objective completion while enforcing scope-lock against feature bloat. Enforces professional engineering health gates (atomic commits, lines/files thresholds, Conventional Commits). Use whenever the user asks to create a branch ("crear rama", "nueva feature", "empezar tarea"), push code ("push", "push seguro", "actualizar PR", "hacer force push", "enmendar commit"), synchronize/clean local branches ("sync", "sincronizar", "limpiar ramas", "podar ramas", "actualizar master", "prune"), work in parallel or isolate a task ("worktree", "en paralelo", "tarea aislada", "hotfix sin tocar rama actual", "aislar refactor", "aislar optimizacion", "aislar tests"), bring latest master changes into an active branch ("rebase", "actualizar mi rama con master", "poner al día rama"), or monitor CI checks ("verificar CI", "checks", "vigilar build", "listo para review", "pasar a ready").
+description: Manages Git branch creation, safe code pushes with zero bloat, local sync/pruning, isolated parallel worktrees, feature rebasing, and remote CI verification. Automates clean feature/fix branches from updated main, toolchain quality gates (lint/format/typecheck), Draft PR creation, atomic iterative commits via commit --amend and git push --force-with-lease, git worktree isolation for parallel bugfixes/tasks without interrupting active development, clean git rebase workflows against advanced origin/master, active PR lifecycle monitoring (auto-detect open PRs, recommend merge or branch stacking when PR commits/lines exceed limits), GitHub CLI CI watch with strict code-vs-infrastructure triage (`startup_failure`, 0-job runs, missing workflows, external-only checks such as Vercel) to prevent both delivering failing builds and blindly "fixing" broken CI infrastructure, and automated transition from Draft to Ready for Review (`gh pr ready`) upon task objective completion while enforcing scope-lock against feature bloat. Enforces professional engineering health gates (atomic commits, lines/files thresholds, Conventional Commits). Use whenever the user asks to create a branch ("crear rama", "nueva feature", "empezar tarea"), push code ("push", "push seguro", "actualizar PR", "hacer force push", "enmendar commit"), synchronize/clean local branches ("sync", "sincronizar", "limpiar ramas", "podar ramas", "actualizar master", "prune"), work in parallel or isolate a task ("worktree", "en paralelo", "tarea aislada", "hotfix sin tocar rama actual", "aislar refactor", "aislar optimizacion", "aislar tests"), bring latest master changes into an active branch ("rebase", "actualizar mi rama con master", "poner al día rama"), or monitor CI checks ("verificar CI", "checks", "vigilar build", "listo para review", "pasar a ready").
 ---
 
 # dev-flow
@@ -9,7 +9,7 @@ Skill de automatización de Git enfocado en máxima productividad, historial lim
 100% autocontenido, agnóstico a cualquier lenguaje/stack, sin dependencias de MCPs externos y con **5 acciones fundamentales** y **gestión proactiva del ciclo de vida de Pull Requests**:
 
 1. **`branch` (Crear rama limpia):** Crea ramas estandarizadas (`feat/*`, `fix/*`, `chore/*`, etc.) directamente desde `origin/master` (o `origin/main`), podando ramas locales huérfanas y detectando PRs abiertos en conflicto.
-2. **`push` (Push inteligente, seguro y verificado por CI):** Valida localmente, empuja la rama (creando Draft PR o enmendando con `--force-with-lease`), monitorea los límites de commits/líneas recomendando merge cuando madura, vigila con GitHub CLI (`gh pr checks --watch`) y **marca el PR como listo para revisión (`gh pr ready`)** cuando se cumple el objetivo de la tarea.
+2. **`push` (Push inteligente, seguro y verificado por CI):** Valida localmente, empuja la rama (creando Draft PR o enmendando con `--force-with-lease`), monitorea los límites de commits/líneas recomendando merge cuando madura, vigila el CI con GitHub CLI y **clasifica cada fallo como código vs infraestructura** antes de tocar nada, y **marca el PR como listo para revisión (`gh pr ready`)** cuando se cumple el objetivo de la tarea.
 3. **`sync` (Sincronizar y podar ramas locales):** Cambia a la rama principal (`main`/`master`), actualiza contra `origin` (`git pull`) y elimina todas las ramas locales mergeadas o cuyo remoto fue borrado (`[origin/...: gone]`).
 4. **`worktree` (Aislamiento para tareas paralelas e independientes):** Resuelve bugs, hotfixes, optimizaciones de rendimiento (`perf`), mejoras de cobertura de tests (`test`), refactors aislados (`refactor`) o auditorías de UI en una carpeta física paralela sin tocar la rama activa, sin hacer `stash`, sin interrumpir el servidor local de desarrollo (`pnpm start`), abriendo el PR, vigilando su CI y limpiando el worktree al finalizar.
 5. **`rebase` (Sincronizar rama activa con master avanzado):** Pone al día la rama de trabajo actual sobre el último `origin/master` manteniendo un historial 100% lineal y actualizando el remoto con `--force-with-lease`.
@@ -35,7 +35,7 @@ Si el usuario pide crear una nueva rama (`branch` o `worktree`) pero ya existe u
 > *"💡 Tienes el PR #{num} (`{branch_anterior}`) abierto y con checks pasando. Te sugiero mergearlo a master antes de crear esta nueva rama para que tu nueva feature nazca con los cambios previos integrados. Si prefieres dejarlo abierto, crearemos la nueva rama directamente desde el último origin/master."*
 
 ### Regla 3: Transición Automática a "Ready for Review" y Blindaje contra Scope Creep
-- **Culminación del objetivo de la tarea:** Una vez que el agente implementa la meta acordada para el PR, pasan todas las pruebas locales y el CI remoto está en verde (✅), el agente **debe ejecutar automáticamente**:
+- **Culminación del objetivo de la tarea:** Una vez que el agente implementa la meta acordada para el PR, pasan todas las pruebas locales y el CI remoto está **clasificado como VERDE según el Paso 3 (Acción `push`)** —no basta con que `gh pr checks` no muestre rojos—, el agente **debe ejecutar automáticamente**:
   ```powershell
   gh pr ready {currentBranch}
   ```
@@ -99,6 +99,12 @@ El agente debe inferir del contexto del repositorio y excluir de las métricas d
 - Detectar rama default: `main` o `master`
 - Rama actual y estado: `git status -s`
 - Detectar PRs activos: `gh pr list --state open --limit 5`
+- **Salud de CI (obligatoria si se va a vigilar un PR):** comprobar que Actions está operativo y que existen runs recientes del repo:
+  ```powershell
+  gh run list --repo {owner}/{repo} --limit 5
+  gh workflow list --repo {owner}/{repo} --all
+  ```
+  Si los últimos runs terminan en `startup_failure` o no hay runs, leer `references/ci-triage.md` **antes** de interpretar cualquier check del PR.
 
 ---
 
@@ -152,24 +158,53 @@ Cuando el usuario pide crear una rama o empezar una tarea:
   - Empujar con seguridad: `git push --force-with-lease origin {currentBranch}`
   - Confirmar: "Commit enmendado y actualizado en remoto con --force-with-lease."
 
-#### Paso 3: Vigilancia Remota de CI (GitHub Actions CI Watch)
-> **Regla de Entrega Verificada:** El agente **NUNCA debe dar por completada una tarea ni entregar un PR como "listo" si el CI remoto falla**.
-- Tras el push inicial o iterativo, verificar el estado de los checks remotos con:
-  ```powershell
-  gh pr checks {currentBranch} --watch
-  ```
-- Si algún check falla (rojo ❌):
-  1. Inspeccionar el log del runner remoto: `gh run view --log-failed`
-  2. Identificar el fallo (diferencia de entorno, tests de integración, linters remotos).
-  3. Corregir el código localmente, compilar y ejecutar tests de nuevo.
-  4. Enmendar el commit y volver a empujar con `git push --force-with-lease origin {currentBranch}`.
-  5. Volver a vigilar hasta que todos los checks estén en verde (✅).
+#### Paso 3: Verificación Remota de CI y Triage de Fallos (Código vs Infraestructura)
+> **Regla de Entrega Verificada:** El agente **NUNCA debe dar por completada una tarea ni entregar un PR como "listo" si el CI remoto falla**; pero **tampoco debe tocar código cuando el fallo es de infraestructura**. El procedimiento completo y la taxonomía están en `references/ci-triage.md`.
+
+1. **Fijar el SHA objetivo y validar el PR:**
+   ```powershell
+   $sha = git rev-parse HEAD
+   gh pr view {currentBranch} --json number,headRefOid,headRefName,url,isDraft
+   ```
+   El `headRefOid` del PR debe coincidir con `$sha`; si no, el push no se propagó o el PR apunta a otra rama. Nunca vigilar un run de un SHA distinto al HEAD local.
+
+2. **Enumerar los runs reales del repo para ese SHA** (no confiar solo en `gh pr checks`):
+   ```powershell
+   gh run list --repo {owner}/{repo} --commit $sha --limit 20 `
+     --json databaseId,name,workflowName,event,status,conclusion,headSha,createdAt,url
+   ```
+   - Sin runs para `$sha` → el workflow **no se disparó**: revisar triggers/`paths`/rama/permisos y reportar. No asumir verde.
+   - Los checks de terceros (Vercel, Netlify, Codecov, bots) **no cuentan** como verificación de código. Solo cuenta un workflow del propio repo (`gh workflow list --repo {owner}/{repo}`).
+
+3. **Clasificar el estado** con la taxonomía de `references/ci-triage.md`:
+   - **VERDE:** al menos un run de un workflow del repo terminó en `success` para `$sha`, sin runs en `failure`, `cancelled`, `timed_out`, `startup_failure` ni `action_required`.
+   - **ROJO_CÓDIGO:** el run ejecutó jobs (`jobs > 0`) y falló en un paso real (test, lint, build, typecheck); `--log-failed` muestra el error.
+   - **INFRA_DESCONOCIDO:** `startup_failure`, run con 0 jobs, `log not found`, workflow no disparado, run atascado en `queued`/`in_progress` más de ~20-30 min, HTTP 403/429, Actions deshabilitado, límite de billing/spending o error de permisos.
+   - **SIN_CI_CONFIGURADO:** `gh workflow list --repo {owner}/{repo} --all` vacío: el repo no tiene CI. No es un fallo ni un verde; reportarlo.
+
+4. **Actuar según la clase:**
+   - **VERDE** → continuar al Paso 4.
+   - **ROJO_CÓDIGO** →
+     1. Inspeccionar el log real: `gh run view {runId} --repo {owner}/{repo} --log-failed`
+     2. Reproducir el fallo localmente (misma versión de runtime y comandos que el CI).
+     3. Corregir código/tests; repetir el quality gate local.
+     4. `git commit --amend --no-edit` y `git push --force-with-lease origin {currentBranch}`.
+     5. Volver al punto 1 hasta clasificar **VERDE**.
+   - **INFRA_DESCONOCIDO** → **NO modificar código, NO reescribir commits y NO introducir cambios cosméticos para "reintentar"**. Verificar localmente, reintentar de forma acotada (`gh run rerun {runId}`, máximo 2-3 intentos), comprobar billing/permisos si aplica y **reportar el bloqueo con evidencia** (runId, conclusión, jobs, logs ausentes). Si el usuario autoriza explícitamente, entregar el PR como **Draft** dejando claro que el CI no pudo ejecutarse.
+   - **SIN_CI_CONFIGURADO** → ejecutar el quality gate local, entregar el PR como **Draft** e informar que el repo no tiene CI. **No** crear workflows improvisados dentro del PR. Marcar Ready solo con confirmación explícita del usuario.
+
+5. **Espera acotada (nunca indefinida):**
+   ```powershell
+   gh pr checks {currentBranch} --watch --interval 30
+   ```
+   `gh pr checks` puede salir de inmediato con `no checks reported` (exit code 1): eso **no** es un fallo de código. Tras cada iteración, volver a enumerar runs por SHA. Si no hay cambios de estado tras ~20-30 minutos, clasificar como **INFRA_DESCONOCIDO** y escalar al usuario.
 
 #### Paso 4: Cierre de Meta y Transición a "Ready for Review"
-- Cuando los checks remotos pasen en verde y el objetivo funcional pactado esté completo:
+- **Solo** cuando el CI esté clasificado como **VERDE** (Paso 3) y el objetivo funcional pactado esté completo:
   ```powershell
   gh pr ready {currentBranch}
   ```
+- Si el CI está en `INFRA_DESCONOCIDO`, **no ejecutar `gh pr ready`**: dejar el PR en Draft y reportar el bloqueo con evidencia. Si el estado es `SIN_CI_CONFIGURADO`, informar la ausencia de CI y pedir confirmación explícita antes de marcar Ready.
 - Entregar el enlace del PR al usuario destacando que está en **Ready for review** para su inspección y aprobación final.
 
 ---
@@ -227,11 +262,13 @@ Cuando el usuario pide sincronizar, podar ramas huérfanas, o actualizar la rama
      ```powershell
      gh pr create --repo <owner/repo> --head {tipo}/{descripcion-kebab-case} --base {defaultBranch} --draft --title "{tipo}({scope}): {description}" --body "## Summary\n- ..."
      ```
-   - **Paso D (Vigilancia remota):** Verificar checks del PR:
+   - **Paso D (Vigilancia remota):** Verificar y clasificar el CI del PR siguiendo `references/ci-triage.md` (SHA → runs del repo → VERDE/ROJO_CÓDIGO/INFRA_DESCONOCIDO). No limitarse a `gh pr checks --watch`:
      ```powershell
-     gh pr checks {tipo}/{descripcion-kebab-case} --watch
+     $sha = git rev-parse HEAD
+     gh run list --repo {owner}/{repo} --commit $sha --limit 20
+     gh pr checks {tipo}/{descripcion-kebab-case} --watch --interval 30
      ```
-   - **Paso E (Cierre de Meta):** Marcar como Ready for review:
+   - **Paso E (Cierre de Meta):** Marcar como Ready for review **solo si el CI es VERDE**; si es `INFRA_DESCONOCIDO`, dejar el PR en Draft y reportar:
      ```powershell
      gh pr ready {tipo}/{descripcion-kebab-case}
      ```
@@ -288,7 +325,9 @@ git fetch origin; git worktree add -b fix/hotfix-pnl ../fixed-frontend-hotfix or
 git -C ../fixed-frontend-hotfix add <archivos>; git -C ../fixed-frontend-hotfix commit -m "fix(pnl): correct calculation"
 git -C ../fixed-frontend-hotfix push -u origin fix/hotfix-pnl
 gh pr create --head fix/hotfix-pnl --base master --draft --title "fix(pnl): correct calculation" --body "..."
-gh pr checks fix/hotfix-pnl --watch
+$sha = git rev-parse HEAD
+gh run list --repo <owner/repo> --commit $sha --limit 20
+gh pr checks fix/hotfix-pnl --watch --interval 30
 gh pr ready fix/hotfix-pnl
 git worktree remove ../fixed-frontend-hotfix
 
@@ -298,10 +337,21 @@ git fetch origin; git rebase origin/master; git push --force-with-lease origin <
 # 6. Push Inicial + Draft PR + Vigilancia CI + Ready
 git add <archivos>; git commit -m "feat(scope): description"; git push -u origin <branch>
 gh pr create --draft --title "feat(scope): description" --body "## Summary`n- ..."
-gh pr checks <branch> --watch
+$sha = git rev-parse HEAD
+gh run list --repo <owner/repo> --commit $sha --limit 20
+gh pr checks <branch> --watch --interval 30
 gh pr ready <branch>
 
 # 7. Push Iterativo Seguro (amend) + Vigilancia CI
 git add <archivos>; git commit --amend --no-edit; git push --force-with-lease origin <branch>
-gh pr checks <branch> --watch
+$sha = git rev-parse HEAD
+gh run list --repo <owner/repo> --commit $sha --limit 20
+gh pr checks <branch> --watch --interval 30
+
+# 8. Triage de un run sospechoso (detalle en references/ci-triage.md)
+gh run view <runId> --repo <owner/repo> --json status,conclusion,jobs,headSha,createdAt,updatedAt
+gh run view <runId> --repo <owner/repo> --log-failed   # "log not found" => 0 jobs / startup_failure
+gh api repos/<owner>/<repo>/actions/runs/<runId>/jobs
+gh api repos/<owner>/<repo>/actions/permissions
+gh run rerun <runId> --repo <owner/repo>               # reintento acotado solo si es infra
 ```
