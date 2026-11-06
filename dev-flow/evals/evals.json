@@ -1,5 +1,5 @@
 {
-  "skill_name": "git-workflow-manager",
+  "skill_name": "dev-flow",
   "evals": [
     {
       "id": 1,
@@ -23,6 +23,48 @@
       "id": 4,
       "prompt": "Quiero pushear mis cambios de forma segura, que valide conflictos y corra tests antes de subir.",
       "expected_output": "Detectar target branch, fetch, dry-run merge local sin commitear, detectar toolchain y correr lint/format/test, push, preguntar si crear PR.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "El PR de la rama feat/login falla en CI, pero el run terminó en 0 segundos, no tiene jobs y no hay logs. ¿Lo arreglo?",
+      "expected_output": "Fijar el SHA local y compararlo con headRefOid del PR; enumerar runs del repo con 'gh run list --repo {owner}/{repo} --commit $sha'. Detectar conclusion 'startup_failure' con 0 jobs y 'log not found'; clasificar como INFRA_DESCONOCIDO. NO modificar código ni reescribir commits. Verificar localmente, reintentar de forma acotada (máx. 2-3 con 'gh run rerun'), revisar billing/permisos de Actions y reportar la evidencia. Dejar el PR en Draft.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "gh pr checks dice que todos los checks están en verde; ¿marco ya el PR como Ready for review?",
+      "expected_output": "No confiar solo en 'gh pr checks'. Verificar que los checks correspondan a workflows del propio repo ('gh workflow list'); si solo aparecen Vercel/Netlify/Codecov/bots, clasificar como no verificado, enumerar runs por SHA con 'gh run list --commit $sha' y NO marcar Ready hasta tener al menos un workflow del repo en success.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "El PR no muestra ningún check y el CI no aparece. ¿Lo doy por bueno porque no hay rojos?",
+      "expected_output": "Clasificar como INFRA_DESCONOCIDO: 'gh run list --commit $sha' no devuelve runs => workflow no disparado. Revisar triggers de '.github/workflows/*.yml' (push.branches, paths, paths-ignore, tipos de pull_request), confirmar que el push llegó con 'git ls-remote origin {branch}' y revisar workflows deshabilitados. No asumir verde, no tocar código y reportar.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "El CI falló con un test rojo: el log muestra un AssertionError en bet-card.spec.ts. Arrégllalo.",
+      "expected_output": "Clasificar como ROJO_CÓDIGO (jobs > 0 y log real). Inspeccionar con 'gh run view {runId} --log-failed', reproducir localmente el mismo comando del CI, corregir el test o el código, ejecutar el quality gate local (format:check, lint, test en modo CI, build), 'git commit --amend --no-edit', 'git push --force-with-lease origin {branch}' y volver a vigilar hasta clasificar VERDE.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "El workflow lleva 40 minutos en 'queued' y no arranca. ¿Espero más o cambio algo en el código?",
+      "expected_output": "Tras ~20-30 minutos sin progreso, clasificar como INFRA_DESCONOCIDO. No modificar código ni introducir commits cosméticos. Reintentar de forma acotada con 'gh run rerun {runId}' y reportar el bloqueo con evidencia. No marcar Ready.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "Localmente todo pasa, pero el CI falla porque el comando de formato no existe. ¿Es un problema del CI?",
+      "expected_output": "Detectar que el comando local es inválido: 'format --check' invoca el script 'format' (que escribe) en lugar del script de verificación real 'format:check'. Alinear el quality gate con los scripts reales del package.json, corregir la invocación local y no clasificarlo como fallo de infraestructura. Si el CI usa exactamente los mismos scripts, tratarlo como ROJO_CÓDIGO.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "prompt": "Ya está todo listo y el CI del repo pasó en verde. Pasa el PR a Ready for review.",
+      "expected_output": "Confirmar que el SHA vigilado coincide con headRefOid y que al menos un workflow del propio repo está en success (VERDE). Ejecutar 'gh pr ready {branch}', entregar el enlace del PR y no ejecutar el merge (potestad exclusiva del usuario).",
       "files": []
     }
   ]
