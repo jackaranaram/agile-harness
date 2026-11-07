@@ -1,6 +1,6 @@
 ---
 name: daily-init
-description: Generates a Scrum Daily Standup report at the start of a session. Analyzes Git state (branch, dirty status, last commit), associated user stories/epics (via agile MCP or branch inference), and project breaches (uncommitted files, missing tests, .env drift, stale branches) without blocking or executing modifying commands. Trigger whenever starting a session or greeting ("hola", "buenos días", "qué hay pendiente", "cómo vamos", "estado del proyecto", "qué hago hoy").
+description: Generates a Scrum Daily Standup report at the start of a session. Analyzes Git state (branch, dirty status, last commit), associated user stories/tasks (inferred from branch name), and project breaches (uncommitted files, missing tests, .env drift, stale branches) in a lightweight, non-blocking manner. Trigger whenever starting a session or greeting ("hola", "buenos días", "qué hay pendiente", "cómo vamos", "estado del proyecto", "qué hago hoy", "daily").
 ---
 
 # daily-init
@@ -8,7 +8,7 @@ description: Generates a Scrum Daily Standup report at the start of a session. A
 Skill de diagnóstico y sincronización matutina (Scrum Daily Standup). Diseñado bajo el principio de **responsabilidad única (SRP)**: su único propósito es inspeccionar el estado actual del proyecto y entregar un reporte ejecutivo claro, conciso y de solo lectura.
 
 **Características principales:**
-- **100% no bloqueante:** Si una herramienta opcional (como el MCP de Agile) no está conectada o no es un repositorio Git, reporta el estado con gracia sin detener la interacción ni arrojar errores fatales.
+- **100% no bloqueante y autónomo:** Sin dependencias externas de servidores MCP; reporta el estado con gracia sin detener la interacción ni arrojar errores fatales.
 - **Sin efectos secundarios:** No ejecuta modificaciones, commits ni eliminaciones de ramas.
 - **PowerShell nativo:** Libre de operadores Bash o dependencias frágiles de CLI.
 
@@ -28,10 +28,8 @@ Cuando se active, ejecuta las siguientes 3 revisiones en orden e imprime el repo
 - Comparar con el remoto configurado (`git status -uno` o estado vs `origin/<branch>`).
 
 ### 2. Detección de Historias de Usuario (HU) / Tareas
-- **Inferencia por rama:** Extraer prefijo numérico o kebab si existe (ej. `42-add-jwt` o `feat/42-add-jwt` $\rightarrow$ `HU-42`).
-- **Enriquecimiento opcional (agile-mcp-server):**
-  - Si las herramientas MCP (`fetch_existing_epics` o similares) están disponibles en el entorno, consultarlas silenciosamente para obtener el título real de la HU y listar los ítems en progreso y pendientes inmediatos.
-  - Si el MCP no está configurado o falla, simplemente presentar la HU inferida por el nombre de la rama sin alertas de error ni bloqueos.
+- **Inferencia por rama:** Extraer prefijo numérico o kebab si existe (ej. `42-add-jwt` o `feat/42-add-jwt` $\rightarrow$ `HU-42`, `us-142-select-fix` $\rightarrow$ `HU-142`).
+- Si la rama no contiene un identificador identificable, indicar "Rama sin identificador de HU explícito".
 
 ### 3. Detección Heurística de Brechas y Alertas (Breaches)
 Ejecutar revisiones preventivas rápidas:
@@ -57,8 +55,7 @@ El resultado debe presentarse de forma visual, directa y sin introducciones vac�
 
 ### 📋 2. Tarea en Curso
 * **HU Detectada:** {HU-ID — Título o "Sin HU asociada en el nombre de branch"}
-* **Pendientes inmediatos:**
-  - {HU-X / Tarea X si el MCP está presente, o "Usa tu tablero ágil habitual"}
+* **Pendientes inmediatos:** Revisa tu tablero habitual o lista de PRs abiertos.
 
 ### ⚠️ 3. Alertas y Brechas Preventivas
 * {Listado de brechas encontradas: .env drift, stashes pendientes, tests huérfanos}
@@ -76,4 +73,3 @@ Esta skill se activa proactivamente ante cualquier saludo o inicio de sesión:
 - "hola", "buenos días", "buenas tardes", "empecemos", "arranquemos"
 - "qué hay pendiente", "cómo vamos", "dame el estado", "qué hago hoy", "daily"
 - Al iniciar una nueva conversación si el contexto es vago y se requiere orientación inicial.
-
