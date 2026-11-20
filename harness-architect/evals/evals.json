@@ -1,0 +1,23 @@
+{
+  "skill_name": "harness-architect",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Tengo un nuevo proyecto SaaS multi-repo con tres carpetas independientes: saas-web (Next.js 16 con pnpm y Tailwind v4), saas-api (FastAPI con uv, ruff, mypy y pytest) y saas-ml (Python .venv con pytest y datasets en data/eval/). Ármame el arnés completo con AGENTS.md jerárquico y hooks de seguridad para no tocar .env ni borrar data/eval/.",
+      "expected_output": "Discovers manifests across the three subrepositories, clarifies that there is no root .git, creates root AGENTS.md plus one self-contained AGENTS.md per subrepo without YAML frontmatter, installs customized .agents/hooks/guardrails.py (protecting .env, data/eval/, and asking on npm/yarn) plus .agents/hooks.json, and verifies everything with verify_harness.py.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Set up an Antigravity agent harness for our single-repo Turborepo monorepo (apps/web, apps/api, packages/shared) using pnpm workspaces and Prisma. Block edits to .env*, prevent npm/yarn usage, and require explicit confirmation before running prisma migrate deploy or destructive git commands.",
+      "expected_output": "Reads package.json, turbo.json, and pnpm-workspace.yaml, creates a monorepo root AGENTS.md and module-scoped AGENTS.md files without YAML frontmatter, configures guardrails.py with extra_force_ask_regexes matching prisma migrate deploy and hooks.json for PreToolUse, and validates via verify_harness.py --expect-force-ask-cmd 'npx prisma migrate deploy'.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Audita el arnés actual de este repositorio: creo que alguien puso frontmatter YAML en AGENTS.md, faltan reglas para la carpeta worker/ y no tenemos hooks.json configurado para protegernos de rm -rf o git push --force.",
+      "expected_output": "Runs workspace discovery plus verify_harness.py to diagnose the frontmatter defect and missing hooks.json, removes YAML frontmatter from AGENTS.md while keeping content grounded in actual manifests, adds worker/AGENTS.md and .agents/hooks/guardrails.py + .agents/hooks.json, and re-runs verify_harness.py until all checks pass.",
+      "files": []
+    }
+  ]
+}
