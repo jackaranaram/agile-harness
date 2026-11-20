@@ -12,6 +12,7 @@ AI agent skills for the agile-agent-harness ecosystem, designed for professional
 | [dev-flow](./dev-flow/SKILL.md) | Professional Git lifecycle & health gates — automatic branch creation from updated master/main, isolated parallel worktrees (hotfix, perf, test, refactor), atomic commits & amends with `--force-with-lease`, linear rebase sync, automated Draft PRs, and code-vs-infrastructure CI triage (`startup_failure`, 0-job runs, missing workflows, external-only checks). | `npx skills add jackaranaram/agile --skill dev-flow` |
 | [project-audit](./project-audit/SKILL.md) | Professional repo standards auditor & bootstrapper — branch protection, CI/CD, linting, pre-commit, dependency bloat analysis, and full implementation plan generation with human-in-the-loop validation. | `npx skills add jackaranaram/agile --skill project-audit` |
 | [docs-suite-creator](./docs-suite-creator/SKILL.md) | Production-grade technical documentation suite architect — generates and updates the 6 core architecture files (`ARCHITECTURE.md`, `CONTRACTS.md`, `DATABASE.md`, `MODEL.md`/`LOGIC.md`, `ROADMAP.md`, `SCOPE.md`) in `docs/` with strict MVP/Post-MVP boundaries and Mermaid diagrams. | `npx skills add jackaranaram/agile --skill docs-suite-creator` |
+| [harness-architect](./harness-architect/SKILL.md) | Antigravity agent harness architect & verifier — audits, designs, generates, and deterministically verifies hierarchical `AGENTS.md` rules and `.agents/hooks.json` + `PreToolUse` security guardrails across single-repo, monorepo, and multi-repo workspaces. | `npx skills add jackaranaram/agile --skill harness-architect` |
 
 ---
 
@@ -30,4 +31,5 @@ npx skills add jackaranaram/agile --skill daily-init
 npx skills add jackaranaram/agile --skill dev-flow
 npx skills add jackaranaram/agile --skill project-audit
 npx skills add jackaranaram/agile --skill docs-suite-creator
+npx skills add jackaranaram/agile --skill harness-architect
 ```
